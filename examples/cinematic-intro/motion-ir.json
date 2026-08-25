@@ -9,6 +9,13 @@
       {"id":"title","type":"text","start":1.2,"end":6.4,"z":10,"content":"Frontier AI Labs","style":{"align":"center","tracking":0.08},"enter":{"type":"blur-fade-rise","duration":1.1},"hold":{"type":"steady"},"exit":{"type":"fade","duration":0.4},"safe_area":true},
       {"id":"light-cut","type":"light","start":5.1,"end":5.8,"z":20,"transform":{"from":"left","to":"right"},"easing":"cinematic-expo"}
     ],
+    "subtitle_cues":[
+      {"id":"subtitle-1","start":1.4,"end":3.8,"text":"Motion Runtime OS"},
+      {"id":"subtitle-2","start":4.1,"end":6.2,"text":"One IR. Multiple providers."}
+    ],
+    "audio_tracks":[
+      {"id":"impact-tone","start":5.0,"end":6.2,"asset_ref":"audio/impact-test.wav","volume":0.7}
+    ],
     "audio_cues":[{"id":"impact","time":5.2,"type":"impact"}]
   }]
 }
