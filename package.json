@@ -1,6 +1,6 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "description": "Executable Motion Runtime OS with provider-neutral IR, Remotion adapter, audio/subtitles and visual regression gates",
   "scripts": {
@@ -9,6 +9,7 @@
     "build": "npm run assets:prepare && remotion bundle src/index.ts",
     "render:intro": "npm run assets:prepare && remotion render src/index.ts CinematicIntro out/cinematic-intro.mp4",
     "render:multi": "npm run assets:prepare && remotion render src/index.ts MultiSceneDemo out/multi-scene-demo.mp4",
+    "provider:remotion": "npm run assets:prepare && node scripts/run-remotion-provider.mjs CinematicIntro examples/cinematic-intro/motion-ir.json out/provider/cinematic-intro.mp4 out/provider/cinematic-intro.render-result.json",
     "frames:intro": "npm run assets:prepare && node scripts/render-keyframes.mjs CinematicIntro out/cinematic-intro.keyframes.json evidence/frames/current",
     "visual:diff": "node scripts/visual-regression.mjs evidence/frames/current quality/golden-baselines/cinematic-intro evidence/visual-diff",
     "validate:ir": "node scripts/validate-motion-ir.mjs examples/cinematic-intro/motion-ir.json examples/multi-scene-demo/motion-ir.json",
