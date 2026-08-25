@@ -11,13 +11,15 @@
 - [x] M5a Quality: IR validation, static QA, typecheck, executable provider contract conformance
 - [x] M6a Example 1: 7s cinematic intro renders in CI
 - [x] M6b Example 2: multi-scene fixture renders in CI and proves scene offset behavior
+- [x] M4b Audio/subtitle runtime evidence: subtitle renderer + audio track renderer + semantic sync + MP4 video/audio stream probe all pass CI
 - [ ] M5b Real visual regression: PNG sampling + perceptual diff implemented; approved Golden Baseline still required
 - [ ] M3b HyperFrames runtime capability discovery + real adapter call
-- [ ] M4b Audio/subtitle runtime evidence: subtitle renderer + audio track renderer + semantic sync implemented; final MP4 audio-stream verification must pass CI before DONE
 - [ ] M7 Provider comparison report from the same Motion IR
 
 ## Current Phase 2 Gate
 `Motion IR → executable provider adapter → audio/subtitle render → MP4 → media stream probe → PNG keyframes → visual diff → RenderResult → artifact manifest → evidence upload`
+
+Latest verified execution evidence: GitHub Actions runs #51 and #52 completed successfully. The media probe confirms the provider artifact contains both video and audio streams. Visual regression infrastructure executes successfully but remains in `NO_BASELINE` mode until an approved Golden PNG baseline is committed.
 
 ## Definition of Done
 不是文档完成，而是至少两个不同结构的真实 examples 能：IR validate → provider compile/render → artifact evidence → QA。Provider Independence 只有在同一 IR 被第二 Provider 实际执行后才成立。
