@@ -1,0 +1,26 @@
+{
+  "name": "motion-runtime-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Executable walking skeleton for Motion Runtime OS",
+  "scripts": {
+    "dev": "remotion studio src/index.ts",
+    "build": "remotion bundle src/index.ts",
+    "render:intro": "remotion render src/index.ts CinematicIntro out/cinematic-intro.mp4",
+    "validate:ir": "node scripts/validate-motion-ir.mjs",
+    "qa:static": "node scripts/qa-static.mjs",
+    "test": "npm run validate:ir && npm run qa:static && npm run build"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.516",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.516"
+  },
+  "devDependencies": {
+    "@types/node": "20.12.14",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3"
+  }
+}
