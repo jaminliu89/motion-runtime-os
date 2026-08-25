@@ -1,4 +1,4 @@
-schema_version: 2
+schema_version: 3
 skills:
   - {name: motion-director, path: skills/motion-director/SKILL.md, layer: creative}
   - {name: motion-design, path: skills/motion-design/SKILL.md, layer: design}
@@ -16,17 +16,19 @@ skills:
   - {name: format-adaptation, path: skills/format-adaptation/SKILL.md, layer: delivery}
   - {name: motion-accessibility, path: skills/accessibility/SKILL.md, layer: quality}
 core_contracts:
-  - schemas/storyboard.schema.json
-  - schemas/scene-graph.schema.json
-  - schemas/timeline.schema.json
-  - schemas/motion-ir.schema.json
-  - schemas/render-job.schema.json
-  - schemas/artifact-manifest.schema.json
+  storyboard: schemas/storyboard.schema.json
+  scene_graph: schemas/scene-graph.schema.json
+  timeline: schemas/timeline.schema.json
+  motion_ir: schemas/motion-ir.schema.json
+  render_job: schemas/render-job.schema.json
+  render_result: schemas/render-result.schema.json
+  artifact_manifest: schemas/artifact-manifest.schema.json
 runtime:
   state_machine: runtime/STATE_MACHINE.yaml
   workflow: runtime/RUNTIME_WORKFLOW.yaml
   execution_policy: runtime/EXECUTION_POLICY.md
   ir_versioning: runtime/MOTION_IR_VERSIONING.md
+  provider_contract: runtime/providers/provider-contract.mjs
 interfaces:
   mcp: mcp/MCP_CONTRACT.md
   cli: cli/CLI_SPEC.md
@@ -34,9 +36,20 @@ interfaces:
   agents: agents/AGENT_REGISTRY.yaml
 providers:
   registry: adapters/PROVIDER_REGISTRY.yaml
-  contract: adapters/ADAPTER_CONTRACT.md
+  semantic_contract: adapters/ADAPTER_CONTRACT.md
+  remotion_runtime: runtime/providers/remotion-provider.mjs
+  remotion_runner: scripts/run-remotion-provider.mjs
+  hyperframes_runtime: runtime/providers/hyperframes-provider.mjs
 quality:
   gate: quality/MOTION_QUALITY_GATE.yaml
-  visual_regression: quality/VISUAL_REGRESSION.md
+  visual_regression_spec: quality/VISUAL_REGRESSION.md
+  visual_regression_runner: scripts/visual-regression.mjs
+  av_sync_runner: scripts/verify-av-sync.mjs
+  media_probe_runner: scripts/verify-media-streams.mjs
+  keyframe_runner: scripts/render-keyframes.mjs
+evidence:
+  artifact_manifest_runner: scripts/generate-artifact-manifest.mjs
+  deterministic_keyframes: scripts/derive-keyframes.mjs
+  ci: .github/workflows/remotion-walking-skeleton.yml
 observability: observability/OBSERVABILITY.md
 benchmarks: benchmarks/BENCHMARKS.md
