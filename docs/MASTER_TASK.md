@@ -15,21 +15,29 @@
 - [x] M6a Example 1: 7s cinematic intro renders in CI
 - [x] M6b Example 2: multi-scene fixture renders in CI and proves scene offset behavior
 - [x] M7 Provider comparison: the same Motion IR executes successfully through Remotion and HyperFrames; Provider Independence is proven
-- [ ] M8 Semantic parity: remove HyperFrames downgrades for blur-fade-rise, exit fade, directional light motion, and camera push-in
-- [ ] M9 Cross-provider semantic QA: compare timing, text/subtitle visibility, audio timing, motion intent and approved visual landmarks without requiring pixel identity
+- [~] M8 Semantic parity: implementation landed for blur-fade-rise, exit fade, directional light motion and camera push-in via HyperFrames seekable GSAP timeline; CI verification pending
+- [~] M9 Cross-provider semantic QA: executable gate landed for timing, text/subtitle visibility, audio timing, motion intent and camera intent without requiring pixel identity; CI verification pending
 
 ## Verified Evidence
 - Golden Baseline gate: GitHub Actions run #55 (`32886279334`) completed successfully using `mode: approved_fingerprint`, baseline `cinematic-intro-v1`; all 9 frames matched exact SHA-256 with Hamming distance 0.
 - Provider Independence gate: GitHub Actions Provider Independence run #3 (`32887649705`) completed successfully.
 - HyperFrames artifact: 7.0s H.264 video + AAC audio, media probe PASS.
-- Provider comparison: `provider_independence_proven: true`, `semantic_equivalence_proven: false`.
-- HyperFrames currently reports 4 explicit semantic downgrades rather than silently dropping them.
+- Provider comparison: `provider_independence_proven: true`, while the last verified run still predates Phase 3 semantic parity implementation.
+
+## Phase 3 Implementation Landed
+- HyperFrames compiler v0.3 maps `blur-fade-rise` using seekable GSAP opacity/y/filter animation.
+- HyperFrames compiler maps title exit fade with a registered seekable timeline.
+- HyperFrames compiler maps left→right light-cut with seekable xPercent motion.
+- HyperFrames compiler maps `subtle-push-in` camera intent through stage scale animation.
+- Compiler emits normalized `semantic_mappings` instead of silently dropping intent.
+- `cross-provider-semantic-qa.mjs` verifies mapped semantics, subtitle/audio windows, runtime smoke and zero remaining compile warnings.
+- Remotion RenderResult now emits semantic coverage as the reference provider so provider comparison can represent semantic equivalence correctly.
 
 ## Current Phase 3 Gate
-`Same Motion IR → Remotion + HyperFrames → both artifacts PASS → normalize semantics → eliminate downgrade warnings → cross-provider semantic QA`
+`Same Motion IR → Remotion + HyperFrames → both artifacts PASS → zero semantic downgrade warnings → cross-provider semantic QA PASS → semantic equivalence evidence`
 
 ## Definition of Done
-Provider Independence 已完成：同一 Motion IR 已被两个真实 Provider 执行并产生通过媒体验证的产物。下一阶段的 DONE 不要求像素一致，而要求关键 motion semantics、时序、字幕、音频、镜头意图和视觉 landmarks 在多个 Provider 上达到可解释的一致性。
+Provider Independence 已完成。Phase 3 只有在新的 CI 实际通过 HyperFrames strict render、media probe、provider comparison 和 cross-provider semantic QA 后，M8/M9 才能从 `[~]` 升为 `[x]`。不要求像素一致，但要求关键 motion semantics、时序、字幕、音频、镜头意图在多个 Provider 上达到可解释的一致性。
 
 ## Constraints
 - 不把未来 Blender/Unreal 做进当前实现，只保留 adapter seam
