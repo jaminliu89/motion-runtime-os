@@ -1,0 +1,19 @@
+schema_version: 1
+gates:
+  schema_validity: {mandatory: true}
+  duration_and_fps: {mandatory: true}
+  aspect_ratio: {mandatory: true}
+  missing_assets_fonts: {mandatory: true}
+  text_bounds_safe_area: {mandatory: true}
+  subtitle_timing: {mandatory_when: subtitles_present}
+  audio_visual_sync: {mandatory_when: audio_present}
+  black_or_blank_frames: {mandatory: true}
+  transition_continuity: {mandatory: true}
+  playback_smoke: {mandatory: true}
+  brand_consistency: {mandatory_when: brand_spec_present}
+  visual_regression: {mandatory_when: baseline_exists}
+  accessibility: {recommended: true}
+release_rule: all_applicable_mandatory_gates_pass
+failure_state: REVISE
+evidence:
+  required: [artifact_ref, render_job_ref, sampled_frames, metadata, findings]
