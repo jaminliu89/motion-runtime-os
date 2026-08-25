@@ -1,0 +1,26 @@
+schema_version: 1
+skills:
+  - {name: motion-director, path: skills/motion-director/SKILL.md, layer: creative}
+  - {name: motion-design, path: skills/motion-design/SKILL.md, layer: design}
+  - {name: storyboard, path: skills/storyboard/SKILL.md, layer: structure}
+  - {name: scene-graph, path: skills/scene-graph/SKILL.md, layer: structure}
+  - {name: timeline-design, path: skills/timeline-design/SKILL.md, layer: structure}
+  - {name: remotion, path: skills/remotion/SKILL.md, layer: provider}
+  - {name: hyperframes, path: skills/hyperframes/SKILL.md, layer: provider}
+  - {name: render, path: skills/render/SKILL.md, layer: render}
+  - {name: motion-qa, path: skills/motion-qa/SKILL.md, layer: quality}
+  - {name: subtitle-motion, path: skills/subtitle-motion/SKILL.md, layer: typography}
+  - {name: audio-sync, path: skills/audio-sync/SKILL.md, layer: audio}
+  - {name: asset-font-management, path: skills/asset-font-management/SKILL.md, layer: assets}
+  - {name: format-adaptation, path: skills/format-adaptation/SKILL.md, layer: delivery}
+  - {name: motion-accessibility, path: skills/accessibility/SKILL.md, layer: quality}
+core_contracts:
+  - schemas/storyboard.schema.json
+  - schemas/scene-graph.schema.json
+  - schemas/timeline.schema.json
+  - schemas/motion-ir.schema.json
+  - schemas/render-job.schema.json
+providers:
+  registry: adapters/PROVIDER_REGISTRY.yaml
+  contract: adapters/ADAPTER_CONTRACT.md
+quality_gate: quality/MOTION_QUALITY_GATE.yaml
