@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RenderResult",
+  "type": "object",
+  "required": ["job_id", "provider", "status", "artifacts", "evidence"],
+  "properties": {
+    "job_id": {"type": "string"},
+    "provider": {"type": "string"},
+    "adapter_version": {"type": "string"},
+    "status": {"enum": ["done", "failed", "unknown"]},
+    "started_at": {"type": ["string", "null"]},
+    "completed_at": {"type": ["string", "null"]},
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "kind"],
+        "properties": {
+          "path": {"type": "string"},
+          "kind": {"enum": ["video", "still", "frame-set", "project", "report"]},
+          "checksum": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "ir_validation": {"type": "string"},
+        "static_qa": {"type": "string"},
+        "visual_regression": {"type": ["string", "null"]},
+        "runtime_smoke": {"type": ["string", "null"]}
+      }
+    },
+    "failure": {
+      "type": ["object", "null"],
+      "properties": {
+        "category": {"enum": ["AUTH", "PERMISSION", "UNSUPPORTED", "ASSET", "COMPILE", "RENDER", "RATE_LIMIT", "UNKNOWN_OUTCOME", "PROVIDER_ERROR"]},
+        "message": {"type": "string"}
+      }
+    }
+  }
+}
