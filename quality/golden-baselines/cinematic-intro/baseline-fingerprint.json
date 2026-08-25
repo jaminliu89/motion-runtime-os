@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "baseline_id": "cinematic-intro-v1",
+  "source_run_id": 32884289831,
+  "source_commit": "d9a070caf634eeb87579e004bb3c56560fc00093",
+  "artifact_digest": "sha256:da03597c1e628e573b22830b82777471a142d52b88ff61627eecbae1bdd6c290",
+  "review_status": "approved",
+  "review_basis": [
+    "9 deterministic keyframes visually inspected",
+    "media probe PASS: h264+aac",
+    "CI run #52 success"
+  ],
+  "perceptual_metric": "average_hash_64",
+  "max_hamming_distance": 2,
+  "frames": [
+    {
+      "file": "frame-00000.png",
+      "sha256": "d8a47083af576d4b882a0495196940e6d70dd81c7b285e51e76f649a70fe8703",
+      "ahash64": "ffffffffffffffff",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "file": "frame-00036.png",
+      "sha256": "d8a47083af576d4b882a0495196940e6d70dd81c7b285e51e76f649a70fe8703",
+      "ahash64": "ffffffffffffffff",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "file": "frame-00114.png",
+      "sha256": "106a4a2fb23a788a94d0d0fa799d1dfcbb6dca7f0d833b34d470ff62df81294a",
+      "ahash64": "0000003c3c000000",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "file": "frame-00153.png",
+      "sha256": "7c49c20843c353bd3c677a30880709fb228bdde78dff48b6777be8b13a653dec",
+      "ahash64": "0000003c3c000018",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "file": "frame-00156.png",
+      "sha256": "c6171a333e9591dec1f3c708eda758ecee5dc00f6668ca116800e43583800661",
+      "ahash64": "0000003c3c000018",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "file": "frame-00163.png",
+      "sha256": "e45e3ea16590ae5a6e2aacefb0871f03ebafe948cd5ae53551e3b886f672ba30",
+      "ahash64": "1010103c3c101018",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "file": "frame-00173.png",
+      "sha256": "68fb4b1a6d81be459a8db0ebda6b68409dc29c2cec60279d4c215ead62c300e0",
+      "ahash64": "0000003c3c000018",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "file": "frame-00191.png",
+      "sha256": "0b7a269119a13dab63c44718e8ea707dbcbcbb2290c334e1cad5f03695e568d4",
+      "ahash64": "0000003c3c000000",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "file": "frame-00209.png",
+      "sha256": "d8a47083af576d4b882a0495196940e6d70dd81c7b285e51e76f649a70fe8703",
+      "ahash64": "ffffffffffffffff",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}
