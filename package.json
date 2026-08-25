@@ -1,6 +1,6 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "private": true,
   "description": "Executable Motion Runtime OS with provider-neutral IR, Remotion adapter, audio/subtitles and visual regression gates",
   "scripts": {
