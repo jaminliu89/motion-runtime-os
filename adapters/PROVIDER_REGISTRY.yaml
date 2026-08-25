@@ -1,4 +1,4 @@
-schema_version: 2
+schema_version: 3
 providers:
   remotion:
     status: verified_primary
@@ -9,13 +9,26 @@ providers:
     runner_path: scripts/run-remotion-provider.mjs
     verified_capabilities: [local_render, mp4, png_stills, subtitles, audio]
   hyperframes:
-    status: capability_discovery_required
-    type: remote_provider
-    strengths: [provider_native_generation, programmable_video]
+    status: verified_secondary
+    type: local_html_programmatic
+    strengths: [deterministic, html_native, programmable_video, subtitles, audio]
     contract_path: runtime/providers/provider-contract.mjs
     runtime_adapter_path: runtime/providers/hyperframes-provider.mjs
-    requires_runtime_capability_discovery: true
-    verified: false
+    runner_path: scripts/run-hyperframes-provider.mjs
+    compiler_path: scripts/compile-hyperframes-project.mjs
+    runtime: hyperframes@0.8.12
+    verified: true
+    verified_capabilities: [local_render, mp4, subtitles, audio]
+    verification_evidence:
+      workflow: .github/workflows/provider-independence.yml
+      run_number: 3
+      run_id: 32887649705
+      source_commit: e9c4f89b0f82a55cec692f62dbc2793f7d90409f
+      artifact_digest: sha256:c69e7ad0fd0372b06923f0c3a7ec99beda46837642a4e4c85ab8617670619bd0
+      media_probe: pass
+      provider_independence: proven
+      semantic_equivalence: false
+    semantic_downgrades: [blur_fade_rise, exit_fade, directional_light_motion, camera_push_in]
   html_motion:
     status: planned
     strengths: [lightweight, svg, css, browser]
@@ -28,4 +41,4 @@ providers:
   unreal:
     status: future
     strengths: [realtime_3d, cinematic, virtual_production]
-routing_dimensions: [capability, determinism, editability, quality, latency, cost, privacy, offline_requirement, output_format]
+routing_dimensions: [capability, determinism, editability, semantic_coverage, quality, latency, cost, privacy, offline_requirement, output_format]
