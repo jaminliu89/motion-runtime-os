@@ -1,0 +1,18 @@
+{
+  "provider": "remotion",
+  "input_ref": "examples/cinematic-intro/motion-ir.json",
+  "composition": "CinematicIntro",
+  "output": {
+    "format": "mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "codec": "h264",
+    "audio_codec": "aac"
+  },
+  "assets": [],
+  "fonts": [],
+  "subtitles": [],
+  "quality_profile": "walking-skeleton",
+  "status": "planned"
+}
