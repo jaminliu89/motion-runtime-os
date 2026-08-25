@@ -1,0 +1,49 @@
+name: Remotion Walking Skeleton
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'examples/cinematic-intro/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/remotion-walking-skeleton.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'examples/cinematic-intro/**'
+      - 'package.json'
+      - 'tsconfig.json'
+
+jobs:
+  verify-and-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm install
+      - name: Validate Motion IR
+        run: npm run validate:ir
+      - name: Static Motion QA
+        run: npm run qa:static
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Bundle Remotion
+        run: npm run build
+      - name: Render cinematic intro
+        run: npm run render:intro
+      - name: Verify artifact
+        run: test -s out/cinematic-intro.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cinematic-intro-mp4
+          path: out/cinematic-intro.mp4
+          if-no-files-found: error
