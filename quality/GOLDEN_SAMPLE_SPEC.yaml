@@ -1,0 +1,19 @@
+schema_version: 1
+golden_sample:
+  id: cinematic-intro-v1
+  source_ir: examples/cinematic-intro/motion-ir.json
+  composition: CinematicIntro
+  provider: remotion
+  required_evidence:
+    - out/cinematic-intro.mp4
+    - out/cinematic-intro.artifact.json
+    - out/cinematic-intro.keyframes.json
+  baseline_policy:
+    create_only_after_quality_gate_passes: true
+    update_requires_decision_log: true
+    compare_dimensions: [frame_structure, text_presence, timing, blank_frames, artifact_metadata]
+  tolerances:
+    frame_hash: future_visual_diff
+    perceptual_diff: future_visual_diff
+    timing_frames: 1
+  status: bootstrap
