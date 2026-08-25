@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "motion-ir.schema.json",
+  "title": "MotionIR",
+  "type": "object",
+  "required": ["version","canvas","scenes"],
+  "properties": {
+    "version": {"type":"string"},
+    "canvas": {
+      "type":"object",
+      "required":["width","height","fps"],
+      "properties": {
+        "width":{"type":"integer","minimum":1},
+        "height":{"type":"integer","minimum":1},
+        "fps":{"type":"number","exclusiveMinimum":0},
+        "background":{"type":"string"}
+      }
+    },
+    "scenes": {
+      "type":"array",
+      "items": {
+        "type":"object",
+        "required":["id","duration","layers"],
+        "properties": {
+          "id":{"type":"string"},
+          "duration":{"type":"number","exclusiveMinimum":0},
+          "camera":{"type":"object"},
+          "transition_in":{"type":"object"},
+          "transition_out":{"type":"object"},
+          "layers":{"type":"array","items":{"$ref":"#/$defs/layer"}},
+          "audio_cues":{"type":"array","items":{"type":"object"}},
+          "subtitle_cues":{"type":"array","items":{"type":"object"}}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "layer": {
+      "type":"object",
+      "required":["id","type","start","end"],
+      "properties": {
+        "id":{"type":"string"},
+        "type":{"enum":["text","image","video","shape","svg","light","particle","group"]},
+        "start":{"type":"number","minimum":0},
+        "end":{"type":"number","exclusiveMinimum":0},
+        "z":{"type":"integer"},
+        "content":{},
+        "asset_ref":{"type":"string"},
+        "style":{"type":"object"},
+        "transform":{"type":"object"},
+        "enter":{"type":"object"},
+        "hold":{"type":"object"},
+        "exit":{"type":"object"},
+        "mask":{"type":"object"},
+        "easing":{"type":"string"},
+        "safe_area":{"type":"boolean"}
+      }
+    }
+  }
+}
