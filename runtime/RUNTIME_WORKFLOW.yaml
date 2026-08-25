@@ -1,0 +1,43 @@
+schema_version: 1
+workflow: motion-runtime
+states:
+  - INTAKE
+  - ASSET_PREFLIGHT
+  - STORYBOARD
+  - SCENE_GRAPH
+  - TIMELINE
+  - MOTION_IR
+  - VALIDATE_IR
+  - RESOLVE_PROVIDER
+  - COMPILE
+  - RENDER
+  - INSPECT
+  - QA
+  - ADAPT
+  - EXPORT
+  - DONE
+  - BLOCKED
+  - RECOVER
+transitions:
+  INTAKE: [ASSET_PREFLIGHT]
+  ASSET_PREFLIGHT: [STORYBOARD, BLOCKED]
+  STORYBOARD: [SCENE_GRAPH]
+  SCENE_GRAPH: [TIMELINE]
+  TIMELINE: [MOTION_IR]
+  MOTION_IR: [VALIDATE_IR]
+  VALIDATE_IR: [RESOLVE_PROVIDER, RECOVER]
+  RESOLVE_PROVIDER: [COMPILE, BLOCKED]
+  COMPILE: [RENDER, RECOVER]
+  RENDER: [INSPECT, RECOVER, BLOCKED]
+  INSPECT: [QA]
+  QA: [ADAPT, EXPORT, RECOVER]
+  ADAPT: [VALIDATE_IR]
+  EXPORT: [DONE]
+  RECOVER: [ASSET_PREFLIGHT, STORYBOARD, TIMELINE, MOTION_IR, COMPILE, RENDER]
+loop_invariants:
+  - no_plan_as_execution
+  - no_provider_success_as_artifact_success
+  - no_blind_retry_on_unknown_outcome
+  - each_loop_must_add_state_artifact_or_evidence
+  - qa_failure_returns_to_nearest_fixable_state
+checkpoints: [MOTION_IR, RENDER, QA, EXPORT]
