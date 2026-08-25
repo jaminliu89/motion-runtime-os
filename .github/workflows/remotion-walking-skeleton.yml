@@ -9,6 +9,7 @@ on:
       - 'examples/**'
       - 'adapters/**'
       - 'quality/**'
+      - 'schemas/**'
       - 'package.json'
       - 'tsconfig.json'
       - '.github/workflows/remotion-walking-skeleton.yml'
@@ -19,13 +20,14 @@ on:
       - 'examples/**'
       - 'adapters/**'
       - 'quality/**'
+      - 'schemas/**'
       - 'package.json'
       - 'tsconfig.json'
 
 jobs:
   verify-and-render:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,10 +45,15 @@ jobs:
         run: npm run render:intro
       - name: Render multi-scene fixture
         run: npm run render:multi
+      - name: Render deterministic PNG keyframes
+        run: npm run frames:intro
+      - name: Pixel visual regression
+        run: npm run visual:diff
       - name: Verify render artifacts
         run: |
           test -s out/cinematic-intro.mp4
           test -s out/multi-scene-demo.mp4
+          test -n "$(find evidence/frames/current -name '*.png' -print -quit)"
       - name: Generate artifact manifest
         run: npm run artifact:manifest
       - name: Verify evidence
@@ -61,4 +68,6 @@ jobs:
             out/multi-scene-demo.mp4
             out/cinematic-intro.artifact.json
             out/cinematic-intro.keyframes.json
+            evidence/frames/current/*.png
+            evidence/visual-diff/**
           if-no-files-found: error
