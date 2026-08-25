@@ -1,0 +1,40 @@
+schema_version: 1
+agents:
+  - id: motion-director
+    mission: creative intent -> directed motion plan
+    skills: [motion-director, storyboard, motion-design]
+    outputs: [storyboard, motion_ir]
+  - id: storyboard-agent
+    mission: brief/script -> shots/scenes/beats
+    skills: [storyboard, scene-graph]
+    outputs: [storyboard, scene_graph]
+  - id: animation-agent
+    mission: scene graph -> timeline + motion ir
+    skills: [timeline-design, motion-layout, motion-design]
+    outputs: [timeline, motion_ir]
+  - id: provider-planner
+    mission: choose provider and compile execution plan
+    skills: [remotion, hyperframes]
+    outputs: [provider_decision, compile_plan]
+  - id: render-agent
+    mission: execute render safely and recover failures
+    skills: [render, asset-font-management, audio-sync]
+    outputs: [render_job, artifact_manifest]
+  - id: subtitle-agent
+    mission: generate and animate captions from shared timing source
+    skills: [subtitle-motion, timeline-design]
+    outputs: [subtitle_track]
+  - id: adaptation-agent
+    mission: adapt one master motion to multiple aspect ratios and durations
+    skills: [format-adaptation, motion-layout]
+    outputs: [variants]
+  - id: motion-qa-agent
+    mission: independently challenge artifact quality and release readiness
+    skills: [motion-qa, motion-accessibility]
+    outputs: [qa_report, release_verdict]
+
+rules:
+  builder_reviewer_separation: true
+  source_of_truth: motion_ir_and_artifact_manifest
+  provider_specific_logic_below_adapter_boundary: true
+  unknown_remote_outcome_requires_status_read: true
