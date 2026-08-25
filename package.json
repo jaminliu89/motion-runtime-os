@@ -1,6 +1,6 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Executable Motion Runtime OS with provider-neutral IR, Remotion adapter and visual regression gates",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "remotion bundle src/index.ts",
     "render:intro": "remotion render src/index.ts CinematicIntro out/cinematic-intro.mp4",
     "render:multi": "remotion render src/index.ts MultiSceneDemo out/multi-scene-demo.mp4",
-    "frames:intro": "node scripts/render-keyframes.mjs CinematicIntro evidence/keyframes.json evidence/frames/current",
+    "frames:intro": "node scripts/render-keyframes.mjs CinematicIntro out/cinematic-intro.keyframes.json evidence/frames/current",
     "visual:diff": "node scripts/visual-regression.mjs evidence/frames/current quality/golden-baselines/cinematic-intro evidence/visual-diff",
     "validate:ir": "node scripts/validate-motion-ir.mjs examples/cinematic-intro/motion-ir.json examples/multi-scene-demo/motion-ir.json",
     "qa:static": "node scripts/qa-static.mjs examples/cinematic-intro/motion-ir.json examples/multi-scene-demo/motion-ir.json",
