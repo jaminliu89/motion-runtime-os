@@ -24,6 +24,19 @@ for (const path of paths) {
       ids.add(layer.id);
       if (!(layer.start >= 0 && layer.end > layer.start && layer.end <= scene.duration)) failures.push(`${scene.id}/${layer.id}: invalid start/end window`);
     }
+    for (const cue of scene.subtitle_cues ?? []) {
+      if (!cue.id || !cue.text?.trim()) failures.push(`${scene.id}: subtitle cue requires id/text`);
+      if (!(cue.start >= 0 && cue.end > cue.start && cue.end <= scene.duration)) failures.push(`${scene.id}/${cue.id}: invalid subtitle window`);
+    }
+    for (const cue of scene.audio_cues ?? []) {
+      if (!(cue.time >= 0 && cue.time <= scene.duration)) failures.push(`${scene.id}/${cue.id}: audio cue outside scene`);
+    }
+    for (const track of scene.audio_tracks ?? []) {
+      if (!track.id || !track.asset_ref) failures.push(`${scene.id}: audio track requires id/asset_ref`);
+      if (!(track.start >= 0 && track.start <= scene.duration)) failures.push(`${scene.id}/${track.id}: invalid audio start`);
+      if (track.end != null && !(track.end > track.start && track.end <= scene.duration)) failures.push(`${scene.id}/${track.id}: invalid audio end`);
+      if (track.volume != null && !(track.volume >= 0 && track.volume <= 1)) failures.push(`${scene.id}/${track.id}: volume must be 0..1`);
+    }
   }
   if (failures.length) {
     totalFailures += failures.length;
