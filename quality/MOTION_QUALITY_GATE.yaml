@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 gates:
   schema_validity: {mandatory: true}
   duration_and_fps: {mandatory: true}
@@ -7,6 +7,8 @@ gates:
   text_bounds_safe_area: {mandatory: true}
   subtitle_timing: {mandatory_when: subtitles_present}
   audio_visual_sync: {mandatory_when: audio_present}
+  audio_stream_present: {mandatory_when: audio_present}
+  provider_render_result: {mandatory: true}
   black_or_blank_frames: {mandatory: true}
   transition_continuity: {mandatory: true}
   playback_smoke: {mandatory: true}
@@ -16,4 +18,5 @@ gates:
 release_rule: all_applicable_mandatory_gates_pass
 failure_state: REVISE
 evidence:
-  required: [artifact_ref, render_job_ref, sampled_frames, metadata, findings]
+  required: [artifact_ref, render_job_ref, render_result_ref, sampled_frames, metadata, findings]
+  conditional: [audio_stream_probe, visual_diff_report]
