@@ -1,0 +1,34 @@
+schema_version: 1
+states:
+  - INTAKE
+  - DIRECT
+  - STORYBOARD
+  - SCENE_GRAPH
+  - TIMELINE
+  - MOTION_IR
+  - ROUTE
+  - COMPILE
+  - RENDER
+  - QA
+  - REVISE
+  - COMPLETE
+  - BLOCKED
+transitions:
+  INTAKE: [DIRECT]
+  DIRECT: [STORYBOARD]
+  STORYBOARD: [SCENE_GRAPH]
+  SCENE_GRAPH: [TIMELINE]
+  TIMELINE: [MOTION_IR]
+  MOTION_IR: [ROUTE]
+  ROUTE: [COMPILE]
+  COMPILE: [RENDER, BLOCKED]
+  RENDER: [QA, BLOCKED]
+  QA: [COMPLETE, REVISE, BLOCKED]
+  REVISE: [STORYBOARD, SCENE_GRAPH, TIMELINE, MOTION_IR, ROUTE]
+  BLOCKED: [DIRECT, STORYBOARD, SCENE_GRAPH, TIMELINE, MOTION_IR, ROUTE, COMPILE, RENDER, QA]
+invariants:
+  - provider_specific_code_must_not_enter_motion_ir
+  - render_success_is_not_complete
+  - qa_evidence_required_for_complete
+  - every_scene_has_duration_and_timebase
+  - every_external_asset_has_resolvable_reference
