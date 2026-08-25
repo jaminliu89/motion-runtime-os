@@ -4,6 +4,7 @@ import type {MotionIR} from '../motion-ir';
 
 type Props = {ir: MotionIR};
 type Layer = MotionIR['scenes'][number]['layers'][number];
+type Scene = MotionIR['scenes'][number];
 
 const TextLayer: React.FC<{layer: Layer; sceneOffset: number}> = ({layer, sceneOffset}) => {
   const frame = useCurrentFrame() - sceneOffset;
@@ -25,6 +26,16 @@ const LightLayer: React.FC<{layer: Layer; sceneOffset: number}> = ({layer, scene
   if (frame < layer.start * fps || frame > layer.end * fps) return null;
   const p = interpolate(frame,[layer.start*fps,layer.end*fps],[-35,135],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
   return <div style={{position:'absolute',top:'-20%',bottom:'-20%',left:`${p}%`,width:5,zIndex:layer.z ?? 0,transform:'rotate(8deg)',background:'linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.95) 50%, rgba(255,255,255,0))',boxShadow:'0 0 32px 10px rgba(255,255,255,0.22)'}}/>;
+};
+
+const SubtitleLayer: React.FC<{scene: Scene; sceneOffset: number}> = ({scene, sceneOffset}) => {
+  const frame = useCurrentFrame() - sceneOffset;
+  const {fps} = useVideoConfig();
+  const cue = (scene.subtitle_cues ?? []).find((item)=>frame >= item.start * fps && frame < item.end * fps);
+  if (!cue) return null;
+  return <AbsoluteFill style={{justifyContent:'flex-end',alignItems:'center',padding:'0 110px 72px',zIndex:1000,pointerEvents:'none'}}>
+    <div style={{maxWidth:'82%',padding:'12px 20px',borderRadius:14,background:'rgba(0,0,0,0.58)',color:'#fff',fontFamily:'Inter, Helvetica Neue, Arial, sans-serif',fontSize:42,lineHeight:1.25,textAlign:'center',textShadow:'0 2px 8px rgba(0,0,0,0.7)'}}>{cue.text}</div>
+  </AbsoluteFill>;
 };
 
 const renderLayer = (layer: Layer, sceneOffset: number) => {
@@ -51,5 +62,8 @@ export const GenericMotion: React.FC<Props> = ({ir}) => {
   }
   const sceneFrame = Math.max(0, frame - sceneOffset);
   const cameraScale = interpolate(sceneFrame,[0,Math.max(1,scene.duration*fps)],[1,scene.camera?.movement === 'subtle-push-in' ? 1.035 : 1],{extrapolateRight:'clamp'});
-  return <AbsoluteFill style={{backgroundColor:ir.canvas.background,overflow:'hidden',transform:`scale(${cameraScale})`}}>{[...scene.layers].sort((a,b)=>(a.z??0)-(b.z??0)).map((layer)=>renderLayer(layer,sceneOffset))}</AbsoluteFill>;
+  return <AbsoluteFill style={{backgroundColor:ir.canvas.background,overflow:'hidden',transform:`scale(${cameraScale})`}}>
+    {[...scene.layers].sort((a,b)=>(a.z??0)-(b.z??0)).map((layer)=>renderLayer(layer,sceneOffset))}
+    <SubtitleLayer scene={scene} sceneOffset={sceneOffset}/>
+  </AbsoluteFill>;
 };
