@@ -18,6 +18,7 @@
     },
     "scenes": {
       "type":"array",
+      "minItems":1,
       "items": {
         "type":"object",
         "required":["id","duration","layers"],
@@ -28,8 +29,9 @@
           "transition_in":{"type":"object"},
           "transition_out":{"type":"object"},
           "layers":{"type":"array","items":{"$ref":"#/$defs/layer"}},
-          "audio_cues":{"type":"array","items":{"type":"object"}},
-          "subtitle_cues":{"type":"array","items":{"type":"object"}}
+          "audio_cues":{"type":"array","items":{"$ref":"#/$defs/audioCue"}},
+          "audio_tracks":{"type":"array","items":{"$ref":"#/$defs/audioTrack"}},
+          "subtitle_cues":{"type":"array","items":{"$ref":"#/$defs/subtitleCue"}}
         }
       }
     }
@@ -40,7 +42,7 @@
       "required":["id","type","start","end"],
       "properties": {
         "id":{"type":"string"},
-        "type":{"enum":["text","image","video","shape","svg","light","particle","group"]},
+        "type":{"enum":["text","background","image","video","shape","svg","light","particle","group"]},
         "start":{"type":"number","minimum":0},
         "end":{"type":"number","exclusiveMinimum":0},
         "z":{"type":"integer"},
@@ -54,6 +56,37 @@
         "mask":{"type":"object"},
         "easing":{"type":"string"},
         "safe_area":{"type":"boolean"}
+      }
+    },
+    "audioCue": {
+      "type":"object",
+      "required":["id","time","type"],
+      "properties": {
+        "id":{"type":"string"},
+        "time":{"type":"number","minimum":0},
+        "type":{"type":"string"}
+      }
+    },
+    "audioTrack": {
+      "type":"object",
+      "required":["id","start","asset_ref"],
+      "properties": {
+        "id":{"type":"string"},
+        "start":{"type":"number","minimum":0},
+        "end":{"type":"number","exclusiveMinimum":0},
+        "asset_ref":{"type":"string"},
+        "volume":{"type":"number","minimum":0,"maximum":1}
+      }
+    },
+    "subtitleCue": {
+      "type":"object",
+      "required":["id","start","end","text"],
+      "properties": {
+        "id":{"type":"string"},
+        "start":{"type":"number","minimum":0},
+        "end":{"type":"number","exclusiveMinimum":0},
+        "text":{"type":"string","minLength":1},
+        "speaker":{"type":"string"}
       }
     }
   }
