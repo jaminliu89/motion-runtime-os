@@ -5,18 +5,22 @@ on:
     branches: [main]
     paths:
       - 'runtime/providers/**'
+      - 'scripts/provider-conformance.mjs'
       - 'scripts/compile-hyperframes-project.mjs'
       - 'scripts/run-hyperframes-provider.mjs'
       - 'scripts/compare-providers.mjs'
+      - 'scripts/verify-media-streams.mjs'
       - 'examples/cinematic-intro/**'
       - 'package.json'
       - '.github/workflows/provider-independence.yml'
   pull_request:
     paths:
       - 'runtime/providers/**'
+      - 'scripts/provider-conformance.mjs'
       - 'scripts/compile-hyperframes-project.mjs'
       - 'scripts/run-hyperframes-provider.mjs'
       - 'scripts/compare-providers.mjs'
+      - 'scripts/verify-media-streams.mjs'
       - 'examples/cinematic-intro/**'
       - 'package.json'
       - '.github/workflows/provider-independence.yml'
