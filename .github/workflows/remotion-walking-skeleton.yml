@@ -8,6 +8,7 @@ on:
       - 'scripts/**'
       - 'examples/cinematic-intro/**'
       - 'adapters/**'
+      - 'quality/**'
       - 'package.json'
       - 'tsconfig.json'
       - '.github/workflows/remotion-walking-skeleton.yml'
@@ -17,6 +18,7 @@ on:
       - 'scripts/**'
       - 'examples/cinematic-intro/**'
       - 'adapters/**'
+      - 'quality/**'
       - 'package.json'
       - 'tsconfig.json'
 
@@ -33,6 +35,8 @@ jobs:
         run: npm install
       - name: Quality runner
         run: npm run qa:run
+      - name: Derive keyframes
+        run: npm run keyframes
       - name: Bundle Remotion
         run: npm run build
       - name: Render cinematic intro
@@ -41,12 +45,15 @@ jobs:
         run: test -s out/cinematic-intro.mp4
       - name: Generate artifact manifest
         run: npm run artifact:manifest
-      - name: Verify manifest
-        run: test -s out/cinematic-intro.artifact.json
+      - name: Verify evidence
+        run: |
+          test -s out/cinematic-intro.artifact.json
+          test -s out/cinematic-intro.keyframes.json
       - uses: actions/upload-artifact@v4
         with:
           name: cinematic-intro-artifacts
           path: |
             out/cinematic-intro.mp4
             out/cinematic-intro.artifact.json
+            out/cinematic-intro.keyframes.json
           if-no-files-found: error
