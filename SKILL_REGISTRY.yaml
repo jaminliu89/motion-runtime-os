@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 skills:
   - {name: motion-director, path: skills/motion-director/SKILL.md, layer: creative}
   - {name: motion-design, path: skills/motion-design/SKILL.md, layer: design}
@@ -21,12 +21,22 @@ core_contracts:
   - schemas/timeline.schema.json
   - schemas/motion-ir.schema.json
   - schemas/render-job.schema.json
+  - schemas/artifact-manifest.schema.json
 runtime:
   state_machine: runtime/STATE_MACHINE.yaml
+  workflow: runtime/RUNTIME_WORKFLOW.yaml
+  execution_policy: runtime/EXECUTION_POLICY.md
   ir_versioning: runtime/MOTION_IR_VERSIONING.md
+interfaces:
+  mcp: mcp/MCP_CONTRACT.md
+  cli: cli/CLI_SPEC.md
+  prompts: prompts/PROMPT_PACK.md
+  agents: agents/AGENT_REGISTRY.yaml
 providers:
   registry: adapters/PROVIDER_REGISTRY.yaml
   contract: adapters/ADAPTER_CONTRACT.md
 quality:
   gate: quality/MOTION_QUALITY_GATE.yaml
   visual_regression: quality/VISUAL_REGRESSION.md
+observability: observability/OBSERVABILITY.md
+benchmarks: benchmarks/BENCHMARKS.md
