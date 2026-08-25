@@ -1,6 +1,6 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Executable Motion Runtime OS with provider-neutral IR and Remotion adapter",
   "scripts": {
@@ -11,6 +11,7 @@
     "qa:static": "node scripts/qa-static.mjs",
     "provider:conformance": "node scripts/provider-conformance.mjs",
     "artifact:manifest": "node scripts/generate-artifact-manifest.mjs",
+    "keyframes": "node scripts/derive-keyframes.mjs",
     "qa:run": "npm run validate:ir && npm run qa:static && npm run provider:conformance && npx tsc --noEmit",
     "test": "npm run qa:run && npm run build"
   },
