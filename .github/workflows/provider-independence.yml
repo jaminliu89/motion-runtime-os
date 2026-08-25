@@ -9,6 +9,7 @@ on:
       - 'scripts/compile-hyperframes-project.mjs'
       - 'scripts/run-hyperframes-provider.mjs'
       - 'scripts/compare-providers.mjs'
+      - 'scripts/cross-provider-semantic-qa.mjs'
       - 'scripts/verify-media-streams.mjs'
       - 'examples/cinematic-intro/**'
       - 'package.json'
@@ -20,6 +21,7 @@ on:
       - 'scripts/compile-hyperframes-project.mjs'
       - 'scripts/run-hyperframes-provider.mjs'
       - 'scripts/compare-providers.mjs'
+      - 'scripts/cross-provider-semantic-qa.mjs'
       - 'scripts/verify-media-streams.mjs'
       - 'examples/cinematic-intro/**'
       - 'package.json'
@@ -48,7 +50,9 @@ jobs:
         run: npm run media:probe:hyperframes
       - name: Compare provider results
         run: npm run provider:compare
-      - name: Verify provider independence evidence
+      - name: Cross-provider semantic QA
+        run: npm run provider:semantic-qa
+      - name: Verify provider independence and semantic evidence
         run: |
           test -s out/cinematic-intro.mp4
           test -s out/cinematic-intro.render-result.json
@@ -56,7 +60,9 @@ jobs:
           test -s out/hyperframes/cinematic-intro.render-result.json
           test -s out/hyperframes/project/compile-report.json
           test -s out/provider-comparison.json
+          test -s out/cross-provider-semantic-qa.json
           grep -q '"provider_independence_proven": true' out/provider-comparison.json
+          grep -q '"semantic_equivalence_proven": true' out/cross-provider-semantic-qa.json
       - uses: actions/upload-artifact@v4
         with:
           name: provider-independence-evidence
@@ -68,6 +74,7 @@ jobs:
             out/hyperframes/project/index.html
             out/hyperframes/project/compile-report.json
             out/provider-comparison.json
+            out/cross-provider-semantic-qa.json
             evidence/media-probe/cinematic-intro.json
             evidence/media-probe/hyperframes-cinematic-intro.json
           if-no-files-found: error
