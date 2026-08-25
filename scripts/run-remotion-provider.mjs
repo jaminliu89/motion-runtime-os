@@ -30,6 +30,13 @@ try {
     completed_at: new Date().toISOString(),
     artifacts: [{path:retrieved.artifacts[0],kind:'video',checksum:verification.checksum}],
     evidence: {ir_validation:'pass',static_qa:'pass',visual_regression:null,runtime_smoke:'pass'},
+    semantic_coverage: {
+      role:'reference_provider',
+      warnings:[],
+      total_warnings:0,
+      fully_equivalent:true,
+      implemented_semantics:['blur-fade-rise','exit-fade','directional-light-motion','camera-subtle-push-in','subtitle-timing','audio-window']
+    },
     failure: null,
     capabilities,
   };
