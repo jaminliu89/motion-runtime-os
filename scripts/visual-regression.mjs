@@ -8,13 +8,21 @@ const threshold = Number(process.env.MOTION_VISUAL_DIFF_THRESHOLD ?? '0.01');
 fs.mkdirSync(diffDir, {recursive:true});
 
 if (!fs.existsSync(currentDir)) throw new Error(`Missing current frames: ${currentDir}`);
-if (!fs.existsSync(baselineDir)) {
-  console.log(`NO_BASELINE: ${baselineDir}. Visual diff skipped; baseline approval is required before this gate becomes mandatory.`);
+const current = fs.readdirSync(currentDir).filter((f)=>f.endsWith('.png')).sort();
+if (current.length === 0) throw new Error(`No current PNG frames in ${currentDir}`);
+
+const baselineFiles = fs.existsSync(baselineDir)
+  ? fs.readdirSync(baselineDir).filter((f)=>f.endsWith('.png')).sort()
+  : [];
+
+if (baselineFiles.length === 0) {
+  const report = {status:'NO_BASELINE', current_frames:current.length, baseline_dir:baselineDir, message:'Golden baseline approval is required before pixel diff becomes mandatory.'};
+  fs.writeFileSync(path.join(diffDir,'report.json'), JSON.stringify(report,null,2));
+  console.log(`NO_BASELINE: ${baselineDir}. Captured ${current.length} current frames; approval is required before enforcing visual diff.`);
   process.exit(0);
 }
 
-const current = fs.readdirSync(currentDir).filter((f)=>f.endsWith('.png')).sort();
-const baselines = new Set(fs.readdirSync(baselineDir).filter((f)=>f.endsWith('.png')));
+const baselines = new Set(baselineFiles);
 let failed = false;
 const report = [];
 for (const file of current) {
@@ -33,7 +41,7 @@ for (const file of current) {
   report.push({file,status:ratio <= threshold ? 'pass':'fail',diff_pixels:count,diff_ratio:ratio});
   if (ratio > threshold) failed = true;
 }
-fs.writeFileSync(path.join(diffDir,'report.json'), JSON.stringify({threshold,report},null,2));
+fs.writeFileSync(path.join(diffDir,'report.json'), JSON.stringify({status: failed ? 'FAIL':'PASS',threshold,report},null,2));
 if (failed) {
   console.error(`Visual regression failed. See ${diffDir}/report.json`);
   process.exit(1);
