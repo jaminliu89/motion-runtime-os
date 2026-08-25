@@ -1,8 +1,8 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "private": true,
-  "description": "Executable Motion Runtime OS with provider-neutral IR, Remotion adapter, audio/subtitles and visual regression gates",
+  "description": "Executable Motion Runtime OS with provider-neutral IR, Remotion and HyperFrames adapters, audio/subtitles and visual regression gates",
   "scripts": {
     "dev": "npm run assets:prepare && remotion studio src/index.ts",
     "assets:prepare": "node scripts/generate-test-audio.mjs",
@@ -10,7 +10,10 @@
     "render:intro": "npm run assets:prepare && remotion render src/index.ts CinematicIntro out/cinematic-intro.mp4",
     "render:multi": "npm run assets:prepare && remotion render src/index.ts MultiSceneDemo out/multi-scene-demo.mp4",
     "provider:remotion": "npm run assets:prepare && node scripts/run-remotion-provider.mjs CinematicIntro examples/cinematic-intro/motion-ir.json out/cinematic-intro.mp4 out/cinematic-intro.render-result.json",
+    "provider:hyperframes": "npm run assets:prepare && node scripts/run-hyperframes-provider.mjs examples/cinematic-intro/motion-ir.json out/hyperframes/cinematic-intro.mp4 out/hyperframes/cinematic-intro.render-result.json",
+    "provider:compare": "node scripts/compare-providers.mjs out/cinematic-intro.render-result.json out/hyperframes/cinematic-intro.render-result.json out/provider-comparison.json",
     "media:probe": "node scripts/verify-media-streams.mjs out/cinematic-intro.mp4 evidence/media-probe/cinematic-intro.json",
+    "media:probe:hyperframes": "node scripts/verify-media-streams.mjs out/hyperframes/cinematic-intro.mp4 evidence/media-probe/hyperframes-cinematic-intro.json",
     "frames:intro": "npm run assets:prepare && node scripts/render-keyframes.mjs CinematicIntro out/cinematic-intro.keyframes.json evidence/frames/current",
     "visual:diff": "node scripts/visual-regression.mjs evidence/frames/current quality/golden-baselines/cinematic-intro evidence/visual-diff",
     "validate:ir": "node scripts/validate-motion-ir.mjs examples/cinematic-intro/motion-ir.json examples/multi-scene-demo/motion-ir.json",
@@ -33,7 +36,9 @@
     "@types/node": "20.12.14",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
+    "ffmpeg-static": "5.3.0",
     "ffprobe-static": "3.1.0",
+    "hyperframes": "0.8.12",
     "pixelmatch": "7.2.0",
     "pngjs": "7.0.0",
     "typescript": "5.9.3"
