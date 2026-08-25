@@ -1,0 +1,14 @@
+{
+  "version":"1.0",
+  "canvas":{"width":1920,"height":1080,"fps":30,"background":"#000000"},
+  "scenes":[{
+    "id":"intro",
+    "duration":7,
+    "camera":{"movement":"subtle-push-in"},
+    "layers":[
+      {"id":"title","type":"text","start":1.2,"end":6.4,"z":10,"content":"Frontier AI Labs","style":{"align":"center","tracking":0.08},"enter":{"type":"blur-fade-rise","duration":1.1},"hold":{"type":"steady"},"exit":{"type":"fade","duration":0.4},"safe_area":true},
+      {"id":"light-cut","type":"light","start":5.1,"end":5.8,"z":20,"transform":{"from":"left","to":"right"},"easing":"cinematic-expo"}
+    ],
+    "audio_cues":[{"id":"impact","time":5.2,"type":"impact"}]
+  }]
+}
