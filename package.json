@@ -1,8 +1,8 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
-  "description": "Executable Motion Runtime OS with provider-neutral IR, Remotion and HyperFrames adapters, audio/subtitles and visual regression gates",
+  "description": "Executable Motion Runtime OS with provider-neutral IR, Remotion and HyperFrames adapters, audio/subtitles, visual regression and semantic parity gates",
   "scripts": {
     "dev": "npm run assets:prepare && remotion studio src/index.ts",
     "assets:prepare": "node scripts/generate-test-audio.mjs",
@@ -12,6 +12,7 @@
     "provider:remotion": "npm run assets:prepare && node scripts/run-remotion-provider.mjs CinematicIntro examples/cinematic-intro/motion-ir.json out/cinematic-intro.mp4 out/cinematic-intro.render-result.json",
     "provider:hyperframes": "npm run assets:prepare && node scripts/run-hyperframes-provider.mjs examples/cinematic-intro/motion-ir.json out/hyperframes/cinematic-intro.mp4 out/hyperframes/cinematic-intro.render-result.json",
     "provider:compare": "node scripts/compare-providers.mjs out/cinematic-intro.render-result.json out/hyperframes/cinematic-intro.render-result.json out/provider-comparison.json",
+    "provider:semantic-qa": "node scripts/cross-provider-semantic-qa.mjs examples/cinematic-intro/motion-ir.json out/cinematic-intro.render-result.json out/hyperframes/cinematic-intro.render-result.json out/hyperframes/project/compile-report.json out/cross-provider-semantic-qa.json",
     "media:probe": "node scripts/verify-media-streams.mjs out/cinematic-intro.mp4 evidence/media-probe/cinematic-intro.json",
     "media:probe:hyperframes": "node scripts/verify-media-streams.mjs out/hyperframes/cinematic-intro.mp4 evidence/media-probe/hyperframes-cinematic-intro.json",
     "frames:intro": "npm run assets:prepare && node scripts/render-keyframes.mjs CinematicIntro out/cinematic-intro.keyframes.json evidence/frames/current",
