@@ -5,8 +5,8 @@ product:
   primary_user: creator_director_agent
   primary_loop: [brief, storyboard, scene_graph, timeline, motion_ir, route, render, qa]
 phase:
-  id: walking_skeleton
-  exit_gate: cinematic_intro_end_to_end
+  id: generic_renderer_and_evidence
+  exit_gate: generic_motion_ir_render_plus_artifact_manifest_plus_keyframe_evidence
 sources:
   product: docs/PRD.md
   architecture: docs/ARCHITECTURE.md
@@ -17,10 +17,18 @@ contracts:
   scene_graph: schemas/scene-graph.schema.json
   timeline: schemas/timeline.schema.json
   render_job: schemas/render-job.schema.json
+  artifact_manifest: schemas/artifact-manifest.schema.json
 quality:
   gate: quality/MOTION_QUALITY_GATE.yaml
+  golden_sample: quality/GOLDEN_SAMPLE_SPEC.yaml
+execution:
+  primary_provider: remotion
+  generic_renderer: src/compositions/GenericMotion.tsx
+  ci: .github/workflows/remotion-walking-skeleton.yml
+  evidence: [mp4, artifact_manifest, deterministic_keyframes]
 rules:
   provider_neutral_ir: true
   render_success_is_not_done: true
   qa_evidence_required: true
+  provider_conformance_required: true
   future_adapters_do_not_enter_mvp: [blender, unreal]
