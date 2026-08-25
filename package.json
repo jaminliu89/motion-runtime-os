@@ -1,6 +1,6 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "private": true,
   "description": "Executable Motion Runtime OS with provider-neutral IR, Remotion adapter, audio/subtitles and visual regression gates",
   "scripts": {
@@ -14,10 +14,11 @@
     "visual:diff": "node scripts/visual-regression.mjs evidence/frames/current quality/golden-baselines/cinematic-intro evidence/visual-diff",
     "validate:ir": "node scripts/validate-motion-ir.mjs examples/cinematic-intro/motion-ir.json examples/multi-scene-demo/motion-ir.json",
     "qa:static": "node scripts/qa-static.mjs examples/cinematic-intro/motion-ir.json examples/multi-scene-demo/motion-ir.json",
+    "qa:av-sync": "node scripts/verify-av-sync.mjs examples/cinematic-intro/motion-ir.json examples/multi-scene-demo/motion-ir.json",
     "provider:conformance": "node scripts/provider-conformance.mjs",
     "artifact:manifest": "node scripts/generate-artifact-manifest.mjs",
     "keyframes": "node scripts/derive-keyframes.mjs",
-    "qa:run": "npm run validate:ir && npm run qa:static && npm run provider:conformance && npx tsc --noEmit",
+    "qa:run": "npm run validate:ir && npm run qa:static && npm run qa:av-sync && npm run provider:conformance && npx tsc --noEmit",
     "test": "npm run qa:run && npm run build"
   },
   "dependencies": {
