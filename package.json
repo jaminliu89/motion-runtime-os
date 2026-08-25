@@ -1,15 +1,18 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Executable walking skeleton for Motion Runtime OS",
+  "description": "Executable Motion Runtime OS with provider-neutral IR and Remotion adapter",
   "scripts": {
     "dev": "remotion studio src/index.ts",
     "build": "remotion bundle src/index.ts",
     "render:intro": "remotion render src/index.ts CinematicIntro out/cinematic-intro.mp4",
     "validate:ir": "node scripts/validate-motion-ir.mjs",
     "qa:static": "node scripts/qa-static.mjs",
-    "test": "npm run validate:ir && npm run qa:static && npm run build"
+    "provider:conformance": "node scripts/provider-conformance.mjs",
+    "artifact:manifest": "node scripts/generate-artifact-manifest.mjs",
+    "qa:run": "npm run validate:ir && npm run qa:static && npm run provider:conformance && npx tsc --noEmit",
+    "test": "npm run qa:run && npm run build"
   },
   "dependencies": {
     "@remotion/cli": "4.0.516",
