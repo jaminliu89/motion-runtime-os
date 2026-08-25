@@ -22,12 +22,19 @@ if (!remotionCapabilities.deterministic || !remotionCapabilities.local_render) {
 }
 
 const hyperCapabilities = await hyperframesProvider.discoverCapabilities();
-if (hyperCapabilities.connected !== false || hyperCapabilities.status !== 'CAPABILITY_DISCOVERY_REQUIRED') {
-  failures.push('hyperframes must remain unverified until real capability discovery succeeds');
+if (!hyperCapabilities.connected || !hyperCapabilities.local_render || hyperCapabilities.runtime !== 'hyperframes@0.8.12') {
+  failures.push('hyperframes executable candidate must expose connected local_render runtime capability');
+}
+
+// Conformance proves the adapter object and declared capabilities are valid.
+// It does NOT mark HyperFrames verified. Registry verification is only allowed
+// after a real render + media probe + same-IR provider comparison succeeds.
+if (registry.includes('hyperframes:\n    status: verified')) {
+  failures.push('registry cannot mark hyperframes verified before execution evidence is committed');
 }
 
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL: ${failure}`);
   process.exit(1);
 }
-console.log('Executable provider conformance passed for Remotion and HyperFrames boundary');
+console.log('Executable provider conformance passed for Remotion and HyperFrames candidate');
