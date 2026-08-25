@@ -12,12 +12,13 @@ export type MotionIR = {
     camera?: {movement?: string};
     layers: Array<{
       id: string;
-      type: 'text' | 'light' | string;
+      type: 'text' | 'light' | 'background' | 'image' | 'video' | 'shape' | 'svg' | 'particle' | 'group' | string;
       start: number;
       end: number;
       z?: number;
       content?: string;
-      style?: {align?: string; tracking?: number};
+      asset_ref?: string;
+      style?: {align?: string; tracking?: number; [key: string]: unknown};
       enter?: {type?: string; duration?: number};
       hold?: {type?: string};
       exit?: {type?: string; duration?: number};
@@ -26,5 +27,7 @@ export type MotionIR = {
       safe_area?: boolean;
     }>;
     audio_cues?: Array<{id: string; time: number; type: string}>;
+    audio_tracks?: Array<{id: string; start: number; end?: number; asset_ref: string; volume?: number}>;
+    subtitle_cues?: Array<{id: string; start: number; end: number; text: string; speaker?: string}>;
   }>;
 };
