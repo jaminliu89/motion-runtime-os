@@ -2,12 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 
-const [composition = 'CinematicIntro', planPath = 'evidence/keyframes.json', outDir = 'evidence/frames/current'] = process.argv.slice(2);
+const [composition = 'CinematicIntro', planPath = 'out/cinematic-intro.keyframes.json', outDir = 'evidence/frames/current'] = process.argv.slice(2);
 if (!fs.existsSync(planPath)) throw new Error(`Missing keyframe plan: ${planPath}`);
 const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
 fs.mkdirSync(outDir, {recursive: true});
 
-const frames = [...new Set((plan.keyframes ?? []).map((k) => k.frame).filter(Number.isInteger))].sort((a,b)=>a-b);
+const rawFrames = Array.isArray(plan.frames) ? plan.frames : (plan.keyframes ?? []).map((k) => k.frame);
+const frames = [...new Set(rawFrames.filter(Number.isInteger))].sort((a,b)=>a-b);
 if (!frames.length) throw new Error('No deterministic keyframes found');
 
 for (const frame of frames) {
