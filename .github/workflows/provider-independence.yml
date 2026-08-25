@@ -1,0 +1,69 @@
+name: Provider Independence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/providers/**'
+      - 'scripts/compile-hyperframes-project.mjs'
+      - 'scripts/run-hyperframes-provider.mjs'
+      - 'scripts/compare-providers.mjs'
+      - 'examples/cinematic-intro/**'
+      - 'package.json'
+      - '.github/workflows/provider-independence.yml'
+  pull_request:
+    paths:
+      - 'runtime/providers/**'
+      - 'scripts/compile-hyperframes-project.mjs'
+      - 'scripts/run-hyperframes-provider.mjs'
+      - 'scripts/compare-providers.mjs'
+      - 'examples/cinematic-intro/**'
+      - 'package.json'
+      - '.github/workflows/provider-independence.yml'
+
+jobs:
+  same-ir-two-providers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Validate shared Motion IR and provider contracts
+        run: npm run qa:run
+      - name: Render shared IR through Remotion
+        run: npm run provider:remotion
+      - name: Render shared IR through HyperFrames
+        run: npm run provider:hyperframes
+      - name: Probe Remotion artifact
+        run: npm run media:probe
+      - name: Probe HyperFrames artifact
+        run: npm run media:probe:hyperframes
+      - name: Compare provider results
+        run: npm run provider:compare
+      - name: Verify provider independence evidence
+        run: |
+          test -s out/cinematic-intro.mp4
+          test -s out/cinematic-intro.render-result.json
+          test -s out/hyperframes/cinematic-intro.mp4
+          test -s out/hyperframes/cinematic-intro.render-result.json
+          test -s out/hyperframes/project/compile-report.json
+          test -s out/provider-comparison.json
+          grep -q '"provider_independence_proven": true' out/provider-comparison.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: provider-independence-evidence
+          path: |
+            out/cinematic-intro.mp4
+            out/cinematic-intro.render-result.json
+            out/hyperframes/cinematic-intro.mp4
+            out/hyperframes/cinematic-intro.render-result.json
+            out/hyperframes/project/index.html
+            out/hyperframes/project/compile-report.json
+            out/provider-comparison.json
+            evidence/media-probe/cinematic-intro.json
+            evidence/media-probe/hyperframes-cinematic-intro.json
+          if-no-files-found: error
