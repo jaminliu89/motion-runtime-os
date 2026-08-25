@@ -23,18 +23,28 @@ if (!remotionCapabilities.deterministic || !remotionCapabilities.local_render) {
 
 const hyperCapabilities = await hyperframesProvider.discoverCapabilities();
 if (!hyperCapabilities.connected || !hyperCapabilities.local_render || hyperCapabilities.runtime !== 'hyperframes@0.8.12') {
-  failures.push('hyperframes executable candidate must expose connected local_render runtime capability');
+  failures.push('hyperframes adapter must expose connected local_render runtime capability');
 }
 
-// Conformance proves the adapter object and declared capabilities are valid.
-// It does NOT mark HyperFrames verified. Registry verification is only allowed
-// after a real render + media probe + same-IR provider comparison succeeds.
-if (registry.includes('hyperframes:\n    status: verified')) {
-  failures.push('registry cannot mark hyperframes verified before execution evidence is committed');
+const hyperSection = registry.split(/\n  [a-zA-Z0-9_]+:\n/).find((section) => section.includes('runtime_adapter_path: runtime/providers/hyperframes-provider.mjs')) ?? '';
+const isVerified = /status:\s*verified_/.test(hyperSection) || /verified:\s*true/.test(hyperSection);
+if (isVerified) {
+  const requiredEvidence = [
+    'verification_evidence:',
+    'run_id: 32887649705',
+    'media_probe: pass',
+    'provider_independence: proven',
+    'semantic_equivalence: false',
+  ];
+  for (const token of requiredEvidence) {
+    if (!hyperSection.includes(token)) failures.push(`verified hyperframes registry missing evidence: ${token}`);
+  }
+} else if (!/verified:\s*false/.test(hyperSection) && !/status:\s*(candidate|capability_discovery_required)/.test(hyperSection)) {
+  failures.push('hyperframes registry must be either explicit candidate/unverified or evidence-backed verified');
 }
 
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL: ${failure}`);
   process.exit(1);
 }
-console.log('Executable provider conformance passed for Remotion and HyperFrames candidate');
+console.log(`Executable provider conformance passed for Remotion and HyperFrames (${isVerified ? 'verified' : 'candidate'})`);
