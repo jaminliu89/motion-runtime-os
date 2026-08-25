@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "canvas": {"width": 1280, "height": 720, "fps": 30, "background": "#000000"},
+  "scenes": [
+    {
+      "id": "scene-a",
+      "duration": 2,
+      "camera": {"movement": "subtle-push-in"},
+      "layers": [
+        {"id": "bg-a", "type": "background", "start": 0, "end": 2, "z": -10, "content": "#000000"},
+        {"id": "title-a", "type": "text", "start": 0.2, "end": 1.8, "z": 10, "content": "Scene One", "style": {"align": "center", "tracking": 0.05}, "enter": {"type": "blur-fade-rise", "duration": 0.5}, "exit": {"type": "fade", "duration": 0.3}, "safe_area": true}
+      ]
+    },
+    {
+      "id": "scene-b",
+      "duration": 2,
+      "layers": [
+        {"id": "bg-b", "type": "background", "start": 0, "end": 2, "z": -10, "content": "#050505"},
+        {"id": "title-b", "type": "text", "start": 0.2, "end": 1.8, "z": 10, "content": "Scene Two", "style": {"align": "center", "tracking": 0.05}, "enter": {"type": "blur-fade-rise", "duration": 0.5}, "exit": {"type": "fade", "duration": 0.3}, "safe_area": true},
+        {"id": "light-b", "type": "light", "start": 0.8, "end": 1.4, "z": 20, "transform": {"from": "left", "to": "right"}, "easing": "cinematic-expo"}
+      ]
+    }
+  ]
+}
