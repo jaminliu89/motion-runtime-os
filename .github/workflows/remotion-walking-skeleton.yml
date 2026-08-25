@@ -6,7 +6,7 @@ on:
     paths:
       - 'src/**'
       - 'scripts/**'
-      - 'examples/cinematic-intro/**'
+      - 'examples/**'
       - 'adapters/**'
       - 'quality/**'
       - 'package.json'
@@ -16,7 +16,7 @@ on:
     paths:
       - 'src/**'
       - 'scripts/**'
-      - 'examples/cinematic-intro/**'
+      - 'examples/**'
       - 'adapters/**'
       - 'quality/**'
       - 'package.json'
@@ -41,8 +41,12 @@ jobs:
         run: npm run build
       - name: Render cinematic intro
         run: npm run render:intro
-      - name: Verify artifact
-        run: test -s out/cinematic-intro.mp4
+      - name: Render multi-scene fixture
+        run: npm run render:multi
+      - name: Verify render artifacts
+        run: |
+          test -s out/cinematic-intro.mp4
+          test -s out/multi-scene-demo.mp4
       - name: Generate artifact manifest
         run: npm run artifact:manifest
       - name: Verify evidence
@@ -51,9 +55,10 @@ jobs:
           test -s out/cinematic-intro.keyframes.json
       - uses: actions/upload-artifact@v4
         with:
-          name: cinematic-intro-artifacts
+          name: motion-runtime-evidence
           path: |
             out/cinematic-intro.mp4
+            out/multi-scene-demo.mp4
             out/cinematic-intro.artifact.json
             out/cinematic-intro.keyframes.json
           if-no-files-found: error
