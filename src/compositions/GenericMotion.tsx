@@ -1,5 +1,6 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Audio} from '@remotion/media';
 import type {MotionIR} from '../motion-ir';
 
 type Props = {ir: MotionIR};
@@ -38,6 +39,19 @@ const SubtitleLayer: React.FC<{scene: Scene; sceneOffset: number}> = ({scene, sc
   </AbsoluteFill>;
 };
 
+const AudioTracks: React.FC<{scene: Scene; sceneOffset: number}> = ({scene, sceneOffset}) => {
+  const {fps} = useVideoConfig();
+  return <>
+    {(scene.audio_tracks ?? []).map((track) => {
+      const from = Math.round(sceneOffset + track.start * fps);
+      const durationInFrames = track.end == null ? undefined : Math.max(1, Math.round((track.end - track.start) * fps));
+      return <Sequence key={track.id} from={from} durationInFrames={durationInFrames} layout="none">
+        <Audio src={staticFile(track.asset_ref)} volume={track.volume ?? 1}/>
+      </Sequence>;
+    })}
+  </>;
+};
+
 const renderLayer = (layer: Layer, sceneOffset: number) => {
   if (layer.type === 'text') return <TextLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;
   if (layer.type === 'light') return <LightLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;
@@ -65,5 +79,6 @@ export const GenericMotion: React.FC<Props> = ({ir}) => {
   return <AbsoluteFill style={{backgroundColor:ir.canvas.background,overflow:'hidden',transform:`scale(${cameraScale})`}}>
     {[...scene.layers].sort((a,b)=>(a.z??0)-(b.z??0)).map((layer)=>renderLayer(layer,sceneOffset))}
     <SubtitleLayer scene={scene} sceneOffset={sceneOffset}/>
+    <AudioTracks scene={scene} sceneOffset={sceneOffset}/>
   </AbsoluteFill>;
 };
