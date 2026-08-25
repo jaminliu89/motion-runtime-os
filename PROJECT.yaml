@@ -1,12 +1,13 @@
-schema_version: 1
+schema_version: 2
 product:
   name: Motion Runtime OS
   north_star: provider-neutral-motion-projects-that-render-and-pass-qa
   primary_user: creator_director_agent
   primary_loop: [brief, storyboard, scene_graph, timeline, motion_ir, route, render, qa]
 phase:
-  id: generic_renderer_and_evidence
-  exit_gate: generic_motion_ir_render_plus_artifact_manifest_plus_keyframe_evidence
+  id: provider_independence_and_golden_baseline
+  completed_gate: remotion_provider_audio_subtitle_media_probe_visual_evidence
+  exit_gate: approved_golden_baseline_plus_second_provider_real_execution
 sources:
   product: docs/PRD.md
   architecture: docs/ARCHITECTURE.md
@@ -17,18 +18,26 @@ contracts:
   scene_graph: schemas/scene-graph.schema.json
   timeline: schemas/timeline.schema.json
   render_job: schemas/render-job.schema.json
+  render_result: schemas/render-result.schema.json
   artifact_manifest: schemas/artifact-manifest.schema.json
 quality:
   gate: quality/MOTION_QUALITY_GATE.yaml
   golden_sample: quality/GOLDEN_SAMPLE_SPEC.yaml
+  visual_regression: scripts/visual-regression.mjs
+  media_probe: scripts/verify-media-streams.mjs
 execution:
   primary_provider: remotion
+  provider_contract: runtime/providers/provider-contract.mjs
+  remotion_adapter: runtime/providers/remotion-provider.mjs
+  hyperframes_adapter: runtime/providers/hyperframes-provider.mjs
   generic_renderer: src/compositions/GenericMotion.tsx
   ci: .github/workflows/remotion-walking-skeleton.yml
-  evidence: [mp4, artifact_manifest, deterministic_keyframes]
+  evidence: [mp4, render_result, artifact_manifest, deterministic_keyframes, png_keyframes, media_probe, visual_diff_report]
 rules:
   provider_neutral_ir: true
   render_success_is_not_done: true
   qa_evidence_required: true
   provider_conformance_required: true
+  golden_baseline_requires_approval: true
+  unverified_provider_cannot_be_marked_verified: true
   future_adapters_do_not_enter_mvp: [blender, unreal]
