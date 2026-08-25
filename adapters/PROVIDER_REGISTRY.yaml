@@ -1,16 +1,21 @@
-schema_version: 1
+schema_version: 2
 providers:
   remotion:
-    status: primary
+    status: verified_primary
     type: local_or_cloud_programmatic
-    strengths: [deterministic, editable, parameterized, captions, data_viz, reproducible]
-    adapter_path: adapters/remotion/
+    strengths: [deterministic, editable, parameterized, captions, audio, data_viz, reproducible]
+    contract_path: runtime/providers/provider-contract.mjs
+    runtime_adapter_path: runtime/providers/remotion-provider.mjs
+    runner_path: scripts/run-remotion-provider.mjs
+    verified_capabilities: [local_render, mp4, png_stills, subtitles, audio]
   hyperframes:
-    status: adapter_contract_ready
+    status: capability_discovery_required
     type: remote_provider
     strengths: [provider_native_generation, programmable_video]
-    adapter_path: adapters/hyperframes/
+    contract_path: runtime/providers/provider-contract.mjs
+    runtime_adapter_path: runtime/providers/hyperframes-provider.mjs
     requires_runtime_capability_discovery: true
+    verified: false
   html_motion:
     status: planned
     strengths: [lightweight, svg, css, browser]
