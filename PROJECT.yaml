@@ -1,0 +1,26 @@
+schema_version: 1
+product:
+  name: Motion Runtime OS
+  north_star: provider-neutral-motion-projects-that-render-and-pass-qa
+  primary_user: creator_director_agent
+  primary_loop: [brief, storyboard, scene_graph, timeline, motion_ir, route, render, qa]
+phase:
+  id: walking_skeleton
+  exit_gate: cinematic_intro_end_to_end
+sources:
+  product: docs/PRD.md
+  architecture: docs/ARCHITECTURE.md
+  tasks: docs/MASTER_TASK.md
+contracts:
+  motion_ir: schemas/motion-ir.schema.json
+  storyboard: schemas/storyboard.schema.json
+  scene_graph: schemas/scene-graph.schema.json
+  timeline: schemas/timeline.schema.json
+  render_job: schemas/render-job.schema.json
+quality:
+  gate: quality/MOTION_QUALITY_GATE.yaml
+rules:
+  provider_neutral_ir: true
+  render_success_is_not_done: true
+  qa_evidence_required: true
+  future_adapters_do_not_enter_mvp: [blender, unreal]
