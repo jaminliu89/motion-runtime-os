@@ -6,8 +6,8 @@
 ## ADR-002 — Remotion is first deterministic adapter
 决定：Remotion 作为第一优先可编辑、可参数化、可重复渲染后端；不等于产品核心。
 
-## ADR-003 — HyperFrames is a remote provider adapter
-决定：首次运行必须 capability discovery；不支持特性显式降级或切换 Provider。
+## ADR-003 — HyperFrames is a provider adapter
+决定：HyperFrames 必须经过 capability discovery、strict compile/render、media probe 和 same-IR comparison 后才能标记 verified；不支持特性显式降级，禁止静默 drop。
 
 ## ADR-004 — Render success is not Done
 决定：所有输出经过 Motion Quality Gate；关键项目增加 visual regression/golden samples。
@@ -24,3 +24,10 @@
 原因：Golden Baseline 必须是经过批准的历史真相，不能由当前 render 自动生成；同时 connector/CI 不应依赖二进制运输能力。Fingerprint baseline 保持小型、可审计、可版本化，并允许以后增加 PNG pixel diagnostics。
 
 约束：任何 baseline 更新必须引用来源 run/commit/artifact digest、经过视觉审查并写入 Decision Log；禁止新 render 静默覆盖已批准 baseline。
+
+## ADR-008 — Provider Independence is proven, Semantic Equivalence is separate
+决定：GitHub Actions Provider Independence run #3 (`32887649705`) 已证明同一份 `examples/cinematic-intro/motion-ir.json` 可以由 Remotion 与 HyperFrames 0.8.12 两个真实执行后端分别产出通过 media probe 的 MP4，因此 Provider Independence 标记为 proven。
+
+证据：HyperFrames 产物为 7.0s H.264 + AAC，media probe PASS；provider comparison 输出 `provider_independence_proven: true`。对应 evidence artifact digest 为 `sha256:c69e7ad0fd0372b06923f0c3a7ec99beda46837642a4e4c85ab8617670619bd0`。
+
+边界：当前 comparison 同时输出 `semantic_equivalence_proven: false`，因为 HyperFrames compiler 仍显式报告 4 个 downgrade：`blur-fade-rise`、exit fade、directional light motion、camera push-in。下一阶段优化这些语义，但不会把 Provider Independence、Semantic Equivalence、Pixel Identity 混为一个指标。
