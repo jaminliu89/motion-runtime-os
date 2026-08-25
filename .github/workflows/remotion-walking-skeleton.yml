@@ -35,11 +35,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install FFmpeg
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          ffprobe -version
       - name: Install dependencies
         run: npm install
       - name: Quality runner
@@ -52,9 +47,8 @@ jobs:
         run: npm run provider:remotion
       - name: Render multi-scene fixture
         run: npm run render:multi
-      - name: Verify audio stream in provider artifact
-        run: |
-          ffprobe -v error -select_streams a:0 -show_entries stream=codec_type -of csv=p=0 out/cinematic-intro.mp4 | grep -q '^audio$'
+      - name: Verify media streams in provider artifact
+        run: npm run media:probe
       - name: Render deterministic PNG keyframes
         run: npm run frames:intro
       - name: Pixel visual regression
@@ -64,6 +58,7 @@ jobs:
           test -s out/cinematic-intro.mp4
           test -s out/cinematic-intro.render-result.json
           test -s out/multi-scene-demo.mp4
+          test -s evidence/media-probe/cinematic-intro.json
           test -n "$(find evidence/frames/current -name '*.png' -print -quit)"
       - name: Generate artifact manifest
         run: npm run artifact:manifest
@@ -81,6 +76,7 @@ jobs:
             out/multi-scene-demo.mp4
             out/cinematic-intro.artifact.json
             out/cinematic-intro.keyframes.json
+            evidence/media-probe/cinematic-intro.json
             evidence/frames/current/*.png
             evidence/visual-diff/**
           if-no-files-found: error
