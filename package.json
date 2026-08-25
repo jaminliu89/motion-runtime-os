@@ -1,13 +1,14 @@
 {
   "name": "motion-runtime-os",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "description": "Executable Motion Runtime OS with provider-neutral IR and Remotion adapter",
   "scripts": {
     "dev": "remotion studio src/index.ts",
     "build": "remotion bundle src/index.ts",
     "render:intro": "remotion render src/index.ts CinematicIntro out/cinematic-intro.mp4",
-    "validate:ir": "node scripts/validate-motion-ir.mjs",
+    "render:multi": "remotion render src/index.ts MultiSceneDemo out/multi-scene-demo.mp4",
+    "validate:ir": "node scripts/validate-motion-ir.mjs examples/cinematic-intro/motion-ir.json examples/multi-scene-demo/motion-ir.json",
     "qa:static": "node scripts/qa-static.mjs",
     "provider:conformance": "node scripts/provider-conformance.mjs",
     "artifact:manifest": "node scripts/generate-artifact-manifest.mjs",
