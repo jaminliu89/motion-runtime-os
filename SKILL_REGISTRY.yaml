@@ -5,6 +5,7 @@ skills:
   - {name: storyboard, path: skills/storyboard/SKILL.md, layer: structure}
   - {name: scene-graph, path: skills/scene-graph/SKILL.md, layer: structure}
   - {name: timeline-design, path: skills/timeline-design/SKILL.md, layer: structure}
+  - {name: motion-layout, path: skills/motion-layout/SKILL.md, layer: layout}
   - {name: remotion, path: skills/remotion/SKILL.md, layer: provider}
   - {name: hyperframes, path: skills/hyperframes/SKILL.md, layer: provider}
   - {name: render, path: skills/render/SKILL.md, layer: render}
@@ -20,7 +21,12 @@ core_contracts:
   - schemas/timeline.schema.json
   - schemas/motion-ir.schema.json
   - schemas/render-job.schema.json
+runtime:
+  state_machine: runtime/STATE_MACHINE.yaml
+  ir_versioning: runtime/MOTION_IR_VERSIONING.md
 providers:
   registry: adapters/PROVIDER_REGISTRY.yaml
   contract: adapters/ADAPTER_CONTRACT.md
-quality_gate: quality/MOTION_QUALITY_GATE.yaml
+quality:
+  gate: quality/MOTION_QUALITY_GATE.yaml
+  visual_regression: quality/VISUAL_REGRESSION.md
