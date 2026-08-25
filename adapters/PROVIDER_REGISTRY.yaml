@@ -1,0 +1,26 @@
+schema_version: 1
+providers:
+  remotion:
+    status: primary
+    type: local_or_cloud_programmatic
+    strengths: [deterministic, editable, parameterized, captions, data_viz, reproducible]
+    adapter_path: adapters/remotion/
+  hyperframes:
+    status: adapter_contract_ready
+    type: remote_provider
+    strengths: [provider_native_generation, programmable_video]
+    adapter_path: adapters/hyperframes/
+    requires_runtime_capability_discovery: true
+  html_motion:
+    status: planned
+    strengths: [lightweight, svg, css, browser]
+  threejs:
+    status: planned
+    strengths: [3d_webgl, camera, particles]
+  blender:
+    status: future
+    strengths: [3d, physics, cinematic_render]
+  unreal:
+    status: future
+    strengths: [realtime_3d, cinematic, virtual_production]
+routing_dimensions: [capability, determinism, editability, quality, latency, cost, privacy, offline_requirement, output_format]
