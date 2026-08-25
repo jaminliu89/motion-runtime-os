@@ -7,6 +7,7 @@ on:
       - 'src/**'
       - 'scripts/**'
       - 'examples/cinematic-intro/**'
+      - 'adapters/**'
       - 'package.json'
       - 'tsconfig.json'
       - '.github/workflows/remotion-walking-skeleton.yml'
@@ -15,6 +16,7 @@ on:
       - 'src/**'
       - 'scripts/**'
       - 'examples/cinematic-intro/**'
+      - 'adapters/**'
       - 'package.json'
       - 'tsconfig.json'
 
@@ -29,20 +31,22 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
-      - name: Validate Motion IR
-        run: npm run validate:ir
-      - name: Static Motion QA
-        run: npm run qa:static
-      - name: Typecheck
-        run: npx tsc --noEmit
+      - name: Quality runner
+        run: npm run qa:run
       - name: Bundle Remotion
         run: npm run build
       - name: Render cinematic intro
         run: npm run render:intro
       - name: Verify artifact
         run: test -s out/cinematic-intro.mp4
+      - name: Generate artifact manifest
+        run: npm run artifact:manifest
+      - name: Verify manifest
+        run: test -s out/cinematic-intro.artifact.json
       - uses: actions/upload-artifact@v4
         with:
-          name: cinematic-intro-mp4
-          path: out/cinematic-intro.mp4
+          name: cinematic-intro-artifacts
+          path: |
+            out/cinematic-intro.mp4
+            out/cinematic-intro.artifact.json
           if-no-files-found: error
