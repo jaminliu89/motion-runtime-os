@@ -1,0 +1,14 @@
+{
+  "version":"1.0",
+  "canvas":{"width":1080,"height":1920,"fps":30,"background":"#0b0b0b"},
+  "scenes":[{
+    "id":"neutral-baseline","duration":20.0,"camera":{"movement":"none"},
+    "layers":[{"id":"source-video","type":"video","asset_ref":"assets/directed-mg-source.mp4","start":0,"end":20,"z":-100}],
+    "subtitle_cues":[
+      {"id":"subtitle-0","start":0,"end":6,"text":"两个月，我们做了 30 个产品。"},
+      {"id":"subtitle-1","start":6,"end":12,"text":"但是，数量从来不是最重要的问题。"},
+      {"id":"subtitle-2","start":12,"end":20,"text":"真正的问题，是它们能不能形成一条闭环。"}
+    ],
+    "audio_tracks":[],"audio_cues":[]
+  }]
+}
