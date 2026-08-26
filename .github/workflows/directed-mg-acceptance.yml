@@ -37,27 +37,36 @@ jobs:
         run: |
           python scripts/build-directed-mg.py
           node scripts/validate-motion-ir.mjs examples/directed-mg/motion-ir.json
+          node scripts/validate-motion-ir.mjs examples/directed-mg/neutral-motion-ir.json
           grep -q '"mg_kind": "bar_chart"' examples/directed-mg/motion-ir.json
           grep -q '"mg_kind": "comparison"' examples/directed-mg/motion-ir.json
           grep -q '"mg_kind": "hero_text"' examples/directed-mg/motion-ir.json
-      - name: Render Directed MG locally with Remotion
-        run: npx remotion render src/index.ts DirectedMG out/directed-mg/directed.mp4
-      - name: Verify video and preserved source audio
+      - name: Render neutral baseline and Directed MG locally
         run: |
+          npx remotion render src/index.ts NeutralMG out/directed-mg/neutral.mp4
+          npx remotion render src/index.ts DirectedMG out/directed-mg/directed.mp4
+      - name: Verify both artifacts and preserved source audio
+        run: |
+          test -s out/directed-mg/neutral.mp4
           test -s out/directed-mg/directed.mp4
           ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of json out/directed-mg/directed.mp4 | tee evidence/directed-mg/video-probe.json
           ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of json out/directed-mg/directed.mp4 | tee evidence/directed-mg/audio-probe.json
+          ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of json out/directed-mg/neutral.mp4 | tee evidence/directed-mg/neutral-audio-probe.json
           grep -q '"codec_name"' evidence/directed-mg/video-probe.json
           grep -q '"codec_name"' evidence/directed-mg/audio-probe.json
-          sha256sum out/directed-mg/directed.mp4 > evidence/directed-mg/final.sha256
+          grep -q '"codec_name"' evidence/directed-mg/neutral-audio-probe.json
+          sha256sum out/directed-mg/neutral.mp4 > evidence/directed-mg/neutral.sha256
+          sha256sum out/directed-mg/directed.mp4 > evidence/directed-mg/directed.sha256
       - uses: actions/upload-artifact@v4
         with:
-          name: directed-mg-real-media
+          name: directed-mg-ab-real-media
           path: |
+            out/directed-mg/neutral.mp4
             out/directed-mg/directed.mp4
             examples/directed-mg/director-ir.json
             examples/directed-mg/mg-plan.json
             examples/directed-mg/motion-ir.json
+            examples/directed-mg/neutral-motion-ir.json
             evidence/directed-mg/*.json
-            evidence/directed-mg/final.sha256
+            evidence/directed-mg/*.sha256
           if-no-files-found: error
