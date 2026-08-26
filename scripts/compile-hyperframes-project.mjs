@@ -64,9 +64,9 @@ for (const scene of ir.scenes ?? []) {
         warnings.push({feature:`${layer.id}.video`,status:'unsupported',reason:'Video layer missing asset_ref'});
       } else {
         const filename = path.basename(layer.asset_ref);
-        clips.push(`<video id="${id}" class="clip source-video" data-start="${start}" data-duration="${duration}" data-track-index="${layer.z ?? -100}" src="./assets/${escapeHtml(filename)}"></video>`);
+        clips.push(`<video id="${id}" class="clip source-video" data-start="${start}" data-duration="${duration}" data-track-index="${layer.z ?? -100}" data-has-audio="true" src="./assets/${escapeHtml(filename)}"></video>`);
         mediaAssets.push({source:path.join('public',layer.asset_ref),dest:path.join(projectDir,'assets',filename),kind:'video'});
-        semanticMappings.push({feature:`${layer.id}.video_window`,status:'mapped',mechanism:'hyperframes-media-timing',start,end:start+duration});
+        semanticMappings.push({feature:`${layer.id}.video_window`,status:'mapped',mechanism:'hyperframes-media-timing+embedded-audio',start,end:start+duration});
       }
     } else if (layer.type === 'background') {
       clips.push(`<div id="${id}" class="clip bg" data-start="${start}" data-duration="${duration}" data-track-index="${layer.z ?? 0}" style="background:${escapeHtml(layer.content ?? ir.canvas.background ?? '#000')}"></div>`);
@@ -121,7 +121,7 @@ window.__timelines['motion-runtime'] = tl;
 </body></html>`;
 
 fs.writeFileSync(path.join(projectDir,'index.html'), html);
-const report = {provider:'hyperframes',compiler_version:'0.4.0',source_ir:irPath,total_duration:totalDuration,fps:ir.canvas.fps,warnings,semantic_mappings:semanticMappings};
+const report = {provider:'hyperframes',compiler_version:'0.4.1',source_ir:irPath,total_duration:totalDuration,fps:ir.canvas.fps,warnings,semantic_mappings:semanticMappings};
 fs.writeFileSync(path.join(projectDir,'compile-report.json'), JSON.stringify(report,null,2));
 console.log(`HyperFrames project compiled: ${projectDir}`);
 console.log(`Compile warnings: ${warnings.length}`);
