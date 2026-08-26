@@ -18,24 +18,23 @@
 - [x] M8 Semantic parity: blur-fade-rise, exit fade, directional light motion and camera push-in are mapped in HyperFrames seekable GSAP timeline and verified in Provider Independence run #9
 - [x] M9 Cross-provider semantic QA: timing, text/subtitle visibility, audio timing, motion intent and camera intent gate passes without requiring pixel identity in Provider Independence run #9
 - [x] M10a Real Director bridge / Remotion: real human interview → AI Director Motion IR → source video+audio+subtitles → Remotion MP4 passes media probe
-- [~] M10b Real Director bridge / HyperFrames: real video layer implementation landed; second-provider real-media CI verification in progress
+- [x] M10b Real Director bridge / HyperFrames: the exact same real Motion IR → source video+embedded original audio+subtitles → HyperFrames strict MP4 passes media probe
 
 ## Verified Evidence
 - Golden Baseline gate: GitHub Actions run #55 (`32886279334`) completed successfully using `mode: approved_fingerprint`, baseline `cinematic-intro-v1`; all 9 frames matched exact SHA-256 with Hamming distance 0.
 - Provider Independence original gate: run #3 (`32887649705`) proved two executable providers.
 - Provider Independence Phase 3 gate: run #9 (`32926669799`) completed SUCCESS including Remotion render, HyperFrames strict render, both media probes, provider comparison, Cross-provider Semantic QA and semantic evidence verification.
 - Real AI Director upstream: `ai-director-engine` Real Media Acceptance run #7 (`32926244006`) completed SUCCESS using a pinned real public-domain human interview; Director Intent QA and Motion Runtime consumer contract both PASS.
-- Real Director→Remotion downstream: Director Bridge Acceptance run #1 (`32926421757`) completed SUCCESS; exact accepted Motion IR rendered with the pinned source footage and final MP4 passed media-stream probe. Artifact ID `9591739910`.
+- Real Director→Remotion downstream: Director Bridge Acceptance run #1 (`32926421757`) completed SUCCESS; exact accepted Motion IR rendered with pinned source footage and final MP4 passed media-stream probe. Artifact ID `9591739910`.
+- Real Director→HyperFrames downstream: Real Media HyperFrames Acceptance run #2 (`32926669798`) completed SUCCESS after strict media-lint compliance (`data-has-audio=true`); final MP4 passed media-stream probe. Artifact ID `9591815442`.
 
-## Phase 3 Closed
-`Same Motion IR → Remotion + HyperFrames → artifacts PASS → zero semantic downgrade warnings → cross-provider semantic QA PASS → semantic equivalence evidence`
+## Real-Media Dual-Provider Gate Closed
+`Real human MP4 → AI Director Engine → Director IR → Motion IR → source-video layer → Remotion + HyperFrames → media-probed MP4 artifacts`
 
-M8/M9 are now DONE based on run #9, not merely code presence.
+This is now verified on both providers with the same pinned source SHA and the same accepted Motion IR. It proves transport/execution/provider independence for real footage. It does not claim that deterministic Semantic Director v1 has reached high creative-director quality.
 
-## Current Gate
-`Real human MP4 → AI Director Engine → Director IR → Motion IR → source-video layer → Remotion + HyperFrames → media-probed artifacts`
-
-Remotion side is DONE. HyperFrames real-media side remains separate until its dedicated acceptance workflow succeeds.
+## Next Quality Frontier
+The next work is no longer plumbing completion. It is director intelligence quality: benchmark narrative functions, emotional turns, attention control, B-roll/edit decisions, shot/camera intent and human preference against before/after outputs.
 
 ## Constraints
 - 不把未来 Blender/Unreal 做进当前实现，只保留 adapter seam
