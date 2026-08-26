@@ -20,7 +20,7 @@ function textClip({id,start,duration,z,content,style={}}) {
   return {innerId,kind};
 }
 
-function shapeClip(layer, sceneId, start, duration, id) {
+function shapeClip(layer, start, duration, id) {
   const style = layer.style ?? {};
   const kind = style.mg_kind ?? 'shape';
   if (kind === 'veil') {
@@ -76,13 +76,14 @@ for (const scene of ir.scenes ?? []) {
       else if (enterType) addWarning(`${layer.id}.enter.${enterType}`, 'Entrance animation not mapped');
       if (enterType === 'blur-fade-rise' || enterType === 'scale-count') addMapping(`${layer.id}.enter.${enterType}`, `gsap-${enterType}`, start, start+enterDuration);
       if (layer.exit?.type === 'fade') {
-        const d=Math.max(.001,Number(layer.exit.duration ?? .35)), s=Math.max(start,sceneOffset+Number(layer.end)-d);
+        const d=Math.max(.001,Number(layer.exit.duration ?? .35)), clipEnd=sceneOffset+Number(layer.end), s=Math.max(start,clipEnd-d);
         timeline.push(`tl.to('${selector}',{opacity:0,duration:${d},ease:'power2.in'},${s});`);
-        addMapping(`${layer.id}.exit.fade`, 'gsap-opacity', s, sceneOffset+Number(layer.end));
+        timeline.push(`tl.set('${selector}',{opacity:0},${clipEnd});`);
+        addMapping(`${layer.id}.exit.fade`, 'gsap-opacity+hard-kill', s, clipEnd);
       } else if (layer.exit?.type) addWarning(`${layer.id}.exit.${layer.exit.type}`, 'Exit animation not mapped');
       if (kind !== 'text') addMapping(`${layer.id}.mg.${kind}`, 'styled-html-text', start, start+duration);
     } else if (layer.type === 'shape') {
-      shapeClip(layer, scene.id, start, duration, id);
+      shapeClip(layer, start, duration, id);
     } else if (layer.type === 'light') {
       const innerId=`${id}-inner`;
       clips.push(`<div id="${id}" class="clip light-shell" data-start="${start}" data-duration="${duration}" data-track-index="${layer.z ?? 20}"><div id="${innerId}" class="light-inner"></div></div>`);
@@ -127,6 +128,6 @@ const html=`<!doctype html><html><head><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:${ir.canvas.background ?? '#000'};font-family:Inter,Arial,sans-serif}[data-composition-id]{position:relative;overflow:hidden;background:${ir.canvas.background ?? '#000'};color:white}#motion-runtime-stage{position:absolute;inset:0;transform-origin:center}.clip{position:absolute;box-sizing:border-box}.bg{inset:0;background:${ir.canvas.background ?? '#000'}}.source-video{inset:0;width:100%;height:100%;object-fit:cover}.title-shell{inset:0;display:flex;align-items:center;justify-content:center;padding:8%;}.title-inner{font-weight:650;text-align:center;will-change:transform,opacity,filter;text-shadow:0 8px 40px rgba(0,0,0,.6)}.mg-number_counter .title-inner{font-weight:800}.subtitle{left:5%;right:5%;bottom:64px;text-align:center;font-size:26px;background:rgba(0,0,0,.55);padding:10px 14px;border-radius:10px}.light-shell{inset:0;overflow:visible;pointer-events:none}.light-inner{position:absolute;top:-10%;bottom:-10%;left:50%;width:3px;background:white;box-shadow:0 0 24px 8px rgba(255,255,255,.55);transform:rotate(7deg)}.mg-veil{inset:0;background:#050505}.mg-card{left:8%;right:8%;top:22%;bottom:22%;border:1px solid rgba(255,255,255,.25);border-radius:28px;background:rgba(9,10,12,.76);backdrop-filter:blur(18px);padding:42px}.mg-label{font-size:42px;font-weight:650;margin-bottom:28px}.mg-bars{height:70%;display:flex;align-items:flex-end;gap:18px}.mg-bar{flex:1;min-height:4%;border-radius:14px 14px 4px 4px;background:linear-gradient(180deg,#fff,#8b8f98);position:relative}.mg-bar span{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#111;font-size:20px}.mg-comparison{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:26px}.mg-side{padding:44px 20px;text-align:center;border-radius:20px;background:rgba(255,255,255,.08);font-size:48px;font-weight:700}.mg-vs{font-size:22px;opacity:.55}.mg-flow{display:flex;align-items:center;justify-content:center;gap:18px}.mg-node{padding:28px 34px;border:1px solid rgba(255,255,255,.28);border-radius:18px;background:rgba(255,255,255,.08);font-size:34px;font-weight:650}.mg-arrow{font-size:34px;opacity:.55}
 </style><script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script></head><body><div id="motion-runtime-root" data-composition-id="motion-runtime" data-width="${ir.canvas.width}" data-height="${ir.canvas.height}" data-fps="${ir.canvas.fps}" data-duration="${totalDuration}"><div id="motion-runtime-stage">${clips.join('\n')}</div></div><script>const tl=gsap.timeline({paused:true});${timeline.join('\n')}window.__timelines=window.__timelines||{};window.__timelines['motion-runtime']=tl;</script></body></html>`;
 fs.writeFileSync(path.join(projectDir,'index.html'),html);
-const report={provider:'hyperframes',compiler_version:'0.5.0',source_ir:irPath,total_duration:totalDuration,fps:ir.canvas.fps,warnings,semantic_mappings:semanticMappings,mg_mappings:semanticMappings.filter(x=>x.feature.includes('.mg.'))};
+const report={provider:'hyperframes',compiler_version:'0.5.1',source_ir:irPath,total_duration:totalDuration,fps:ir.canvas.fps,warnings,semantic_mappings:semanticMappings,mg_mappings:semanticMappings.filter(x=>x.feature.includes('.mg.'))};
 fs.writeFileSync(path.join(projectDir,'compile-report.json'),JSON.stringify(report,null,2));
 console.log(`HyperFrames project compiled: ${projectDir}`); console.log(`Compile warnings: ${warnings.length}`); console.log(`Semantic mappings: ${semanticMappings.length}`); console.log(`MG mappings: ${report.mg_mappings.length}`);
