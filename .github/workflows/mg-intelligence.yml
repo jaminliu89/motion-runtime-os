@@ -7,24 +7,27 @@ on:
       - 'runtime/mg_planner.py'
       - 'runtime/mg_compiler.py'
       - 'runtime/mg_qa.py'
+      - 'runtime/art_direction.py'
       - 'schemas/mg-plan.schema.json'
       - 'tests/test_mg_planner.py'
       - 'tests/test_mg_compiler.py'
       - 'tests/test_mg_qa.py'
+      - 'tests/test_art_direction.py'
+      - 'tests/test_art_direction_compiler.py'
       - 'src/compositions/GenericMotion.tsx'
       - 'docs/MG_INTELLIGENCE_SPEC.md'
+      - 'docs/ART_DIRECTION_ENGINE_SPEC.md'
       - '.github/workflows/mg-intelligence.yml'
   pull_request:
     paths:
       - 'runtime/mg_planner.py'
       - 'runtime/mg_compiler.py'
       - 'runtime/mg_qa.py'
+      - 'runtime/art_direction.py'
       - 'schemas/mg-plan.schema.json'
-      - 'tests/test_mg_planner.py'
-      - 'tests/test_mg_compiler.py'
-      - 'tests/test_mg_qa.py'
+      - 'tests/**'
       - 'src/compositions/GenericMotion.tsx'
-      - 'docs/MG_INTELLIGENCE_SPEC.md'
+      - 'docs/**'
       - '.github/workflows/mg-intelligence.yml'
 
 jobs:
@@ -39,11 +42,11 @@ jobs:
         with:
           node-version: 22
       - run: python -m pip install pytest jsonschema
-      - name: Run semantic MG planner compiler and QA tests
-        run: python -m pytest -q tests/test_mg_planner.py tests/test_mg_compiler.py tests/test_mg_qa.py
-      - name: Validate generated MG Plan, quality and compiled Motion IR
+      - name: Run semantic MG, QA and art direction tests
+        run: python -m pytest -q tests/test_mg_planner.py tests/test_mg_compiler.py tests/test_mg_qa.py tests/test_art_direction.py tests/test_art_direction_compiler.py
+      - name: Validate styled MG Plan and compiled Motion IR
         run: >-
-          python -c "import json; from jsonschema import Draft202012Validator; from runtime.mg_planner import plan; from runtime.mg_compiler import compile_motion_ir; from runtime.mg_qa import evaluate; d={'segments':[{'id':'r','start':0,'end':3,'transcript':'30 products','narrative_function':'proof','attention_target':'30','confidence':.9},{'id':'t','start':3,'end':6,'transcript':'but quantity is not the problem','narrative_function':'turn','attention_target':'but','confidence':.9},{'id':'v','start':6,'end':10,'transcript':'the real problem is the loop','narrative_function':'revelation','attention_target':'real problem','confidence':.93}]}; p=plan(d); Draft202012Validator(json.load(open('schemas/mg-plan.schema.json'))).validate(p); q=evaluate(p); assert q['status']=='pass', q; m=compile_motion_ir(p,d,source_asset_ref='assets/source.mp4'); Draft202012Validator(json.load(open('schemas/motion-ir.schema.json'))).validate(m); print('MG Plan + QA + Motion IR PASS')"
+          python -c "import json; from jsonschema import Draft202012Validator; from runtime.mg_planner import plan; from runtime.art_direction import apply_profile; from runtime.mg_compiler import compile_motion_ir; from runtime.mg_qa import evaluate; d={'segments':[{'id':'r','start':0,'end':3,'transcript':'30 products','narrative_function':'proof','attention_target':'30','confidence':.9},{'id':'t','start':3,'end':6,'transcript':'but quantity is not the problem','narrative_function':'turn','attention_target':'but','confidence':.9},{'id':'v','start':6,'end':10,'transcript':'the real problem is the loop','narrative_function':'revelation','attention_target':'real problem','confidence':.93}]}; p=apply_profile(plan(d),'precision_tech'); Draft202012Validator(json.load(open('schemas/mg-plan.schema.json'))).validate(p); q=evaluate(p); assert q['status']=='pass', q; m=compile_motion_ir(p,d,source_asset_ref='assets/source.mp4'); Draft202012Validator(json.load(open('schemas/motion-ir.schema.json'))).validate(m); assert m['art_direction']['profile_id']=='precision_tech'; print('Styled MG Plan + QA + Motion IR PASS')"
       - name: Install runtime dependencies
         run: npm install
       - name: Typecheck/build renderer surface
