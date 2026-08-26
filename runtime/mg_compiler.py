@@ -11,6 +11,17 @@ def _segment_map(director_ir: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     return {str(s.get("id")): s for s in director_ir.get("segments", [])}
 
 
+def _style(plan: Dict[str, Any], kind: str, **extra: Any) -> Dict[str, Any]:
+    return {
+        "mg_kind": kind,
+        "mg_grammar": list(plan.get("grammar", [])),
+        "mg_segment_id": str(plan.get("segment_id")),
+        "mg_narrative_function": plan.get("narrative_function"),
+        "mg_restraint": plan.get("restraint"),
+        **extra,
+    }
+
+
 def _overlay_layers(plan: Dict[str, Any], seg: Dict[str, Any], idx: int) -> List[Dict[str, Any]]:
     start=float(seg.get("start", 0)); end=float(seg.get("end", start + plan["timing"]["duration"])); duration=max(.1,end-start)
     attention=plan.get("attention_target") or seg.get("transcript") or ""
@@ -18,25 +29,25 @@ def _overlay_layers(plan: Dict[str, Any], seg: Dict[str, Any], idx: int) -> List
     enter_duration=min(.55,max(.18,duration*.18)); exit_duration=min(.35,max(.12,duration*.12))
 
     if "suppress_background" in grammar or "negative_space" in grammar:
-        layers.append({"id":f"{base}-veil","type":"shape","start":start,"end":end,"z":5,"content":"","style":{"mg_kind":"veil","opacity":0.66 if "negative_space" in grammar else 0.46}})
+        layers.append({"id":f"{base}-veil","type":"shape","start":start,"end":end,"z":5,"content":"","style":_style(plan,"veil",opacity=0.66 if "negative_space" in grammar else 0.46)})
 
     if any(g in grammar for g in {"keyword_isolation","kinetic_text","word_reveal","type_scale_contrast","slow_reveal"}):
-        layers.append({"id":f"{base}-type","type":"text","start":start+min(.12,duration*.05),"end":end,"z":30,"content":str(attention),"style":{"mg_kind":"hero_text","tracking":0.02,"fontSize":104 if plan.get("restraint")!="high" else 62,"maxWidth":1500},"enter":{"type":"blur-fade-rise","duration":enter_duration},"hold":{"type":"steady"},"exit":{"type":"fade","duration":exit_duration},"safe_area":True})
+        layers.append({"id":f"{base}-type","type":"text","start":start+min(.12,duration*.05),"end":end,"z":30,"content":str(attention),"style":_style(plan,"hero_text",tracking=0.02,fontSize=104 if plan.get("restraint")!="high" else 62,maxWidth=1500),"enter":{"type":"blur-fade-rise","duration":enter_duration},"hold":{"type":"steady"},"exit":{"type":"fade","duration":exit_duration},"safe_area":True})
 
     if "number_counter" in grammar or "counter" in grammar:
-        layers.append({"id":f"{base}-counter","type":"text","start":start,"end":end,"z":36,"content":str(attention),"style":{"mg_kind":"number_counter","fontSize":190,"tracking":-0.03},"enter":{"type":"scale-count","duration":min(.8,duration*.3)},"exit":{"type":"fade","duration":exit_duration},"safe_area":True})
+        layers.append({"id":f"{base}-counter","type":"text","start":start,"end":end,"z":36,"content":str(attention),"style":_style(plan,"number_counter",fontSize=190,tracking=-0.03),"enter":{"type":"scale-count","duration":min(.8,duration*.3)},"exit":{"type":"fade","duration":exit_duration},"safe_area":True})
 
     if any(g in grammar for g in {"bar_chart","line_chart","percentage","ranking","delta","progress"}):
-        layers.append({"id":f"{base}-data","type":"shape","start":start+min(.2,duration*.08),"end":end,"z":25,"content":str(attention),"style":{"mg_kind":"bar_chart","bars":[0.34,0.58,0.82,1.0],"label":str(attention)},"enter":{"type":"grow","duration":min(.75,duration*.3)},"exit":{"type":"fade","duration":exit_duration}})
+        layers.append({"id":f"{base}-data","type":"shape","start":start+min(.2,duration*.08),"end":end,"z":25,"content":str(attention),"style":_style(plan,"bar_chart",bars=[0.34,0.58,0.82,1.0],label=str(attention)),"enter":{"type":"grow","duration":min(.75,duration*.3)},"exit":{"type":"fade","duration":exit_duration}})
 
     if any(g in grammar for g in {"before_after","comparison_map"}):
-        layers.append({"id":f"{base}-compare","type":"shape","start":start,"end":end,"z":24,"content":str(attention),"style":{"mg_kind":"comparison","left":"过去","right":"现在"},"enter":{"type":"split","duration":enter_duration},"exit":{"type":"fade","duration":exit_duration}})
+        layers.append({"id":f"{base}-compare","type":"shape","start":start,"end":end,"z":24,"content":str(attention),"style":_style(plan,"comparison",left="过去",right="现在"),"enter":{"type":"split","duration":enter_duration},"exit":{"type":"fade","duration":exit_duration}})
 
     if any(g in grammar for g in {"callout_annotation","process_flow","causal_chain","node_graph","timeline"}):
-        layers.append({"id":f"{base}-diagram","type":"shape","start":start,"end":end,"z":26,"content":str(attention),"style":{"mg_kind":"process_flow","nodes":["问题","判断","结果"]},"enter":{"type":"draw","duration":min(.85,duration*.35)},"exit":{"type":"fade","duration":exit_duration}})
+        layers.append({"id":f"{base}-diagram","type":"shape","start":start,"end":end,"z":26,"content":str(attention),"style":_style(plan,"process_flow",nodes=["问题","判断","结果"]),"enter":{"type":"draw","duration":min(.85,duration*.35)},"exit":{"type":"fade","duration":exit_duration}})
 
     if "impact_hit" in grammar:
-        layers.append({"id":f"{base}-impact","type":"light","start":min(end-.08,start+.18),"end":min(end,start+.52),"z":45,"transform":{"from":"left","to":"right"},"easing":"cinematic-expo"})
+        layers.append({"id":f"{base}-impact","type":"light","start":min(end-.08,start+.18),"end":min(end,start+.52),"z":45,"style":_style(plan,"impact_light"),"transform":{"from":"left","to":"right"},"easing":"cinematic-expo"})
     return layers
 
 
