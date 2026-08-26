@@ -4,7 +4,7 @@ Deterministic/evidence-friendly baseline. A future model may propose style choic
 must return the same typed decision fields and may not rewrite semantic grammar.
 """
 from __future__ import annotations
-from typing import Any, Dict, Iterable
+from typing import Any, Dict
 
 
 def _text(context: Dict[str, Any]) -> str:
@@ -35,20 +35,33 @@ def select(context: Dict[str, Any], director_ir: Dict[str, Any]) -> Dict[str, An
     if reveal+contrast>=2: add("kinetic_signal",min(1.8,.45*(reveal+contrast)),f"director:turn/reveal×{reveal+contrast}")
     if exposition>=3: add("editorial_restraint",min(1.5,.35*exposition),f"director:exposition×{exposition}")
 
-    requested=context.get("preferred_profile")
-    if requested in scores: add(str(requested),3.0,"explicit_brand_preference")
     forbidden=set(context.get("forbidden_profiles") or [])
     for p in forbidden: scores.pop(p,None); reasons.pop(p,None)
     if not scores: raise ValueError("all art direction profiles are forbidden")
 
-    ranked=sorted(scores.items(),key=lambda x:(x[1],x[0]),reverse=True)
-    selected,top=ranked[0]; second=ranked[1][1] if len(ranked)>1 else 0.0
-    margin=max(0.0,top-second); confidence=max(.5,min(.97,.55+margin*.08+min(top,5)*.03))
+    requested=context.get("preferred_profile")
+    if requested is not None:
+        if requested not in {"editorial_restraint","precision_tech","kinetic_signal"}:
+            raise ValueError(f"unknown preferred profile: {requested}")
+        if requested in forbidden:
+            raise ValueError(f"preferred profile is forbidden: {requested}")
+        # Explicit brand preference is a user/brand constraint, not another weak heuristic.
+        # Keep heuristic scores for evidence/alternatives, but selection honors the constraint.
+        reasons[str(requested)].append("explicit_brand_preference")
+        selected=str(requested)
+        ranked=sorted(scores.items(),key=lambda x:(x[0]!=selected,x[1]),reverse=True)
+        ranked=[(selected,scores[selected])]+[(p,s) for p,s in sorted(scores.items(),key=lambda x:(x[1],x[0]),reverse=True) if p!=selected]
+        confidence=.97
+    else:
+        ranked=sorted(scores.items(),key=lambda x:(x[1],x[0]),reverse=True)
+        selected,top=ranked[0]; second=ranked[1][1] if len(ranked)>1 else 0.0
+        margin=max(0.0,top-second); confidence=max(.5,min(.94,.55+margin*.08+min(top,5)*.03))
+
     return {
         "version":"1.0","selected_profile":selected,"confidence":round(confidence,3),
         "scores":{k:round(v,3) for k,v in sorted(scores.items())},
         "reasons":reasons[selected],
-        "alternatives":[{"profile":p,"score":round(s,3)} for p,s in ranked[1:]],
+        "alternatives":[{"profile":p,"score":round(s,3)} for p,s in ranked if p!=selected],
         "context_snapshot":context,
         "semantic_summary":{"functions":functions,"proof":proof,"reveal":reveal,"contrast":contrast,"exposition":exposition}
     }
