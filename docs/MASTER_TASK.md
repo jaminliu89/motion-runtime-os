@@ -1,46 +1,54 @@
 # Master Task
 
 ## Goal
-跑通 Motion Runtime OS 的真实可执行闭环，并证明 Renderer/Provider 接口不是单样例假象。
+跑通 Motion Runtime OS 的真实可执行闭环，并证明 Renderer/Provider 接口不是单样例假象；在此基础上建立无需付费 NLE 依赖的 Semantic Motion / MG Intelligence。
 
 ## Current Status
 - [x] M1 Runtime contracts: Storyboard/SceneGraph/Timeline/MotionIR/RenderJob/ArtifactManifest/RenderResult
-- [x] M2 Director skills: motion-director, motion-design, storyboard, timeline + supporting motion skills
-- [x] M3a Remotion executable adapter: executable provider contract + Composition + CI render + RenderResult
-- [x] M3b HyperFrames executable adapter: Motion IR → HyperFrames HTML → strict render → MP4 → RenderResult
-- [x] M4a Render evidence: MP4 + artifact manifest + deterministic keyframe plan + PNG keyframes
-- [x] M4b Audio/subtitle runtime evidence: subtitle renderer + audio track renderer + semantic sync + MP4 video/audio stream probe all pass CI
-- [x] M5a Quality: IR validation, static QA, typecheck, executable provider contract conformance
-- [x] M5b Real visual regression: Golden Baseline v1 approved; run #55 passes approved fingerprint regression for all 9 deterministic frames
-- [x] M6a Example 1: 7s cinematic intro renders in CI
-- [x] M6b Example 2: multi-scene fixture renders in CI and proves scene offset behavior
-- [x] M7 Provider comparison: the same Motion IR executes successfully through Remotion and HyperFrames; Provider Independence is proven
-- [x] M8 Semantic parity: blur-fade-rise, exit fade, directional light motion and camera push-in are mapped in HyperFrames seekable GSAP timeline and verified in Provider Independence run #9
-- [x] M9 Cross-provider semantic QA: timing, text/subtitle visibility, audio timing, motion intent and camera intent gate passes without requiring pixel identity in Provider Independence run #9
-- [x] M10a Real Director bridge / Remotion: real human interview → AI Director Motion IR → source video+audio+subtitles → Remotion MP4 passes media probe
-- [x] M10b Real Director bridge / HyperFrames: the exact same real Motion IR → source video+embedded original audio+subtitles → HyperFrames strict MP4 passes media probe
+- [x] M2 Director skills and provider-neutral motion intent
+- [x] M3a Remotion executable adapter
+- [x] M3b HyperFrames executable adapter
+- [x] M4 Render/media/audio/subtitle evidence
+- [x] M5 Quality + Golden Baseline + visual regression
+- [x] M6 Multi-example rendering
+- [x] M7 Provider Independence: same Motion IR through Remotion + HyperFrames
+- [x] M8/M9 Cross-provider semantic parity/QA for the established Motion IR semantics
+- [x] M10 Real Director bridge through Remotion + HyperFrames with source video/audio
+- [x] M11 MG Plan v1: machine schema + composable grammar + restraint policy
+- [x] M12 Semantic MG Planner: Director IR → differentiated proof/contrast/question/reveal/exposition grammar
+- [x] M13 MG Plan → Motion IR compiler with source-video/subtitle lineage
+- [x] M14 Generic Remotion Runtime executes MG typography/data/diagram/rhythm primitives (`number_counter`, `bar_chart`, `comparison`, `process_flow`, `veil`, `hero_text`, impact/camera)
+- [x] M15 MG QA: grammar-family diversity, strong-effect density, exposition restraint, attention target and timing gates
+- [x] M16 Real 20s A/B acceptance: pinned vertical human source → Neutral subtitle-only baseline + Directed MG → both MP4 → source audio preserved → artifact upload
+- [ ] M17 Human blind preference: Neutral vs Directed preference lift and qualitative failure tags
+- [ ] M18 Motion Canvas provider: discovery → contract → real diagram/vector render → semantic comparison
+- [ ] M19 Expand grammar execution: line charts, timelines, node graphs, document/UI motion, mask/morph transitions
+- [ ] M20 Zhijian MG takeover: expose MG Plan/grammar provenance and per-effect override/edit controls
 
 ## Verified Evidence
-- Golden Baseline gate: GitHub Actions run #55 (`32886279334`) completed successfully using `mode: approved_fingerprint`, baseline `cinematic-intro-v1`; all 9 frames matched exact SHA-256 with Hamming distance 0.
-- Provider Independence original gate: run #3 (`32887649705`) proved two executable providers.
-- Provider Independence Phase 3 gate: run #9 (`32926669799`) completed SUCCESS including Remotion render, HyperFrames strict render, both media probes, provider comparison, Cross-provider Semantic QA and semantic evidence verification.
-- Real AI Director upstream: `ai-director-engine` Real Media Acceptance run #7 (`32926244006`) completed SUCCESS using a pinned real public-domain human interview; Director Intent QA and Motion Runtime consumer contract both PASS.
-- Real Director→Remotion downstream: Director Bridge Acceptance run #1 (`32926421757`) completed SUCCESS; exact accepted Motion IR rendered with pinned source footage and final MP4 passed media-stream probe. Artifact ID `9591739910`.
-- Real Director→HyperFrames downstream: Real Media HyperFrames Acceptance run #2 (`32926669798`) completed SUCCESS after strict media-lint compliance (`data-has-audio=true`); final MP4 passed media-stream probe. Artifact ID `9591815442`.
+- Provider Independence Phase 3 run `32926669799`: SUCCESS.
+- Real Director→Remotion run `32926421757`: SUCCESS, artifact `9591739910`.
+- Real Director→HyperFrames run `32926669798`: SUCCESS, artifact `9591815442`.
+- MG Intelligence compiler/QA run `32965740388`: SUCCESS. Planner + compiler + schema + restraint/diversity QA + renderer build all PASS.
+- Directed MG Real Media Acceptance run `32965688798`: SUCCESS.
+  - pinned source SHA-256 verified;
+  - semantic compilation produced data (`bar_chart`), comparison and reveal (`hero_text`) grammar;
+  - Neutral and Directed 20s vertical MP4 both rendered locally;
+  - both retained source audio according to ffprobe;
+  - artifact ID `9605679296`, size ~59.2 MB, digest `sha256:0acf5fd570e63828ac521ba1bce36236a13fae6d3e0b40da6f8d9fa95aef042b`.
 
-## Real-Media Dual-Provider Gate Closed
-`Real human MP4 → AI Director Engine → Director IR → Motion IR → source-video layer → Remotion + HyperFrames → media-probed MP4 artifacts`
+## Product Decision
+ChatCut is OPTIONAL_PROVIDER / BENCHMARK, not a release dependency. The canonical local-first path is:
+`Director IR → MG Planner → MG Plan/Motion Grammar → Motion IR → HyperFrames | Motion Canvas | Remotion → QA → Zhijian human takeover`.
 
-This is now verified on both providers with the same pinned source SHA and the same accepted Motion IR. It proves transport/execution/provider independence for real footage. It does not claim that deterministic Semantic Director v1 has reached high creative-director quality.
-
-## Next Quality Frontier
-The next work is no longer plumbing completion. It is director intelligence quality: benchmark narrative functions, emotional turns, attention control, B-roll/edit decisions, shot/camera intent and human preference against before/after outputs.
+The first technical risk is now closed: the stack can generate non-trivial MG locally on real footage without a paid ChatCut execution path. This does **not** yet prove the result is aesthetically superior; M17 human preference is the next hard quality gate.
 
 ## Constraints
-- 不把未来 Blender/Unreal 做进当前实现，只保留 adapter seam
-- 不允许 provider-specific JSX/API 泄漏进 Motion IR
-- 不允许 render success 直接标记质量 DONE
-- 任何 schema 变更必须有 versioning/migration 说明
-- 未真实运行的 Provider 不得标记 verified
-- Golden Baseline 不得自动批准或被新渲染静默覆盖
-- Provider Independence ≠ Semantic Equivalence ≠ Pixel Identity；三者必须分开度量
+- Renderer/provider never owns narrative meaning.
+- No template-ID architecture; grammar is composable semantics.
+- Do not animate every sentence; restraint is a first-class QA dimension.
+- No paid-provider release dependency.
+- No provider-specific JSX/API leakage into Motion IR.
+- Render success alone is never quality DONE.
+- Golden Baseline is approval-controlled.
+- Provider Independence ≠ Semantic Equivalence ≠ Pixel Identity ≠ Human Preference; measure them separately.
