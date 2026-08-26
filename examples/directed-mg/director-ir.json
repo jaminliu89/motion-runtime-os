@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "segments": [
+    {"id":"proof-01","start":0.0,"end":6.0,"transcript":"两个月，我们做了 30 个产品。","narrative_function":"proof","attention_target":"30","confidence":0.93},
+    {"id":"turn-01","start":6.0,"end":12.0,"transcript":"但是，数量从来不是最重要的问题。","narrative_function":"turn","attention_target":"但是","confidence":0.91},
+    {"id":"reveal-01","start":12.0,"end":20.0,"transcript":"真正的问题，是它们能不能形成一条闭环。","narrative_function":"revelation","attention_target":"真正的问题","confidence":0.95}
+  ]
+}
