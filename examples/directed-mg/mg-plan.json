@@ -1,0 +1,8 @@
+{
+  "version":"1.0",
+  "segments":[
+    {"segment_id":"proof-01","narrative_function":"proof","attention_target":"30","confidence":0.93,"restraint":"low","grammar":["number_counter","bar_chart","callout_annotation"],"timing":{"duration":6.0,"build":0.9,"pause":0,"reveal":1.2},"provider_requirements":["deterministic_timeline","local_asset","vector_graphics"],"rationale":"semantic=proof; confidence=0.93; restraint=low"},
+    {"segment_id":"turn-01","narrative_function":"contrast","attention_target":"但是","confidence":0.91,"restraint":"low","grammar":["before_after","hard_interrupt","focus_isolation"],"timing":{"duration":6.0,"build":0.9,"pause":0,"reveal":1.2},"provider_requirements":["deterministic_timeline","local_asset","vector_graphics"],"rationale":"semantic=turn; confidence=0.91; restraint=low"},
+    {"segment_id":"reveal-01","narrative_function":"reveal","attention_target":"真正的问题","confidence":0.95,"restraint":"low","grammar":["freeze","suppress_background","keyword_isolation","push_in","impact_hit"],"timing":{"duration":8.0,"build":0.9,"pause":0.25,"reveal":1.2},"provider_requirements":["deterministic_timeline","local_asset"],"rationale":"semantic=revelation; confidence=0.95; restraint=low"}
+  ]
+}
