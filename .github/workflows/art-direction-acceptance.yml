@@ -1,0 +1,91 @@
+name: Art Direction Real Media Acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/art_direction.py'
+      - 'runtime/mg_compiler.py'
+      - 'scripts/build-art-direction.py'
+      - 'examples/art-direction/**'
+      - 'src/Root.tsx'
+      - 'src/compositions/GenericMotion.tsx'
+      - 'scripts/compile-hyperframes-project.mjs'
+      - '.github/workflows/art-direction-acceptance.yml'
+  workflow_dispatch:
+
+jobs:
+  art-direction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          npm install
+      - name: Stage pinned public-domain source
+        run: |
+          mkdir -p public/assets out/art-direction evidence/art-direction
+          curl -L --fail --retry 3 'https://d34w7g4gy10iej.cloudfront.net/video/2603/DOD_111581929/DOD_111581929.mp4' -o public/assets/art-direction-source.mp4
+          echo 'a93869b5712154b990909a3bfb14e2636a5cce59174ecd64854abdbda302fad0  public/assets/art-direction-source.mp4' | sha256sum -c -
+      - name: Compile all profiles and prove semantic invariance
+        run: |
+          for p in editorial_restraint precision_tech kinetic_signal; do
+            python scripts/build-art-direction.py --profile "$p"
+            node scripts/validate-motion-ir.mjs examples/art-direction/motion-ir.json
+            mkdir -p "out/art-direction/$p"
+            cp examples/art-direction/mg-plan.json "out/art-direction/$p/mg-plan.json"
+            cp examples/art-direction/motion-ir.json "out/art-direction/$p/motion-ir.json"
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base=None
+          for p in ['editorial_restraint','precision_tech','kinetic_signal']:
+              d=json.loads(Path(f'out/art-direction/{p}/mg-plan.json').read_text())
+              semantic=[(s['segment_id'],s['narrative_function'],s['attention_target'],tuple(s['grammar']),s['restraint']) for s in d['segments']]
+              if base is None: base=semantic
+              assert semantic==base, (p, semantic, base)
+          print('Art direction semantic invariance PASS')
+          PY
+      - name: Render all three art directions through Remotion
+        run: |
+          for p in editorial_restraint precision_tech kinetic_signal; do
+            cp "out/art-direction/$p/mg-plan.json" examples/art-direction/mg-plan.json
+            cp "out/art-direction/$p/motion-ir.json" examples/art-direction/motion-ir.json
+            npx remotion render src/index.ts ArtDirection "out/art-direction/$p/remotion.mp4"
+            ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of json "out/art-direction/$p/remotion.mp4" > "out/art-direction/$p/audio-probe.json"
+            grep -q '"codec_name"' "out/art-direction/$p/audio-probe.json"
+          done
+      - name: Render precision profile through HyperFrames
+        run: |
+          cp out/art-direction/precision_tech/motion-ir.json examples/art-direction/motion-ir.json
+          node scripts/run-hyperframes-provider.mjs examples/art-direction/motion-ir.json out/art-direction/precision_tech/hyperframes.mp4 out/art-direction/precision_tech/hyperframes-result.json
+          node scripts/verify-media-streams.mjs out/art-direction/precision_tech/hyperframes.mp4 evidence/art-direction/hyperframes-media-probe.json
+          grep -q '"status": "PASS"' evidence/art-direction/hyperframes-media-probe.json
+          test -s out/hyperframes/project/compile-report.json
+          python - <<'PY'
+          import json
+          r=json.load(open('out/hyperframes/project/compile-report.json'))
+          assert not [w for w in r.get('warnings',[]) if '.mg.' in w.get('feature','') or '.shape.' in w.get('feature','')], r.get('warnings')
+          print('HyperFrames styled MG parity PASS')
+          PY
+      - name: Produce evidence manifest
+        run: |
+          sha256sum out/art-direction/*/remotion.mp4 > evidence/art-direction/remotion-profiles.sha256
+          sha256sum out/art-direction/precision_tech/hyperframes.mp4 > evidence/art-direction/hyperframes.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: art-direction-real-media
+          path: |
+            out/art-direction/**
+            out/hyperframes/project/compile-report.json
+            evidence/art-direction/**
+          if-no-files-found: error
