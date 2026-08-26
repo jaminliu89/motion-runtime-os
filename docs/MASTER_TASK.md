@@ -15,29 +15,27 @@
 - [x] M6a Example 1: 7s cinematic intro renders in CI
 - [x] M6b Example 2: multi-scene fixture renders in CI and proves scene offset behavior
 - [x] M7 Provider comparison: the same Motion IR executes successfully through Remotion and HyperFrames; Provider Independence is proven
-- [~] M8 Semantic parity: implementation landed for blur-fade-rise, exit fade, directional light motion and camera push-in via HyperFrames seekable GSAP timeline; CI verification pending
-- [~] M9 Cross-provider semantic QA: executable gate landed for timing, text/subtitle visibility, audio timing, motion intent and camera intent without requiring pixel identity; CI verification pending
+- [x] M8 Semantic parity: blur-fade-rise, exit fade, directional light motion and camera push-in are mapped in HyperFrames seekable GSAP timeline and verified in Provider Independence run #9
+- [x] M9 Cross-provider semantic QA: timing, text/subtitle visibility, audio timing, motion intent and camera intent gate passes without requiring pixel identity in Provider Independence run #9
+- [x] M10a Real Director bridge / Remotion: real human interview → AI Director Motion IR → source video+audio+subtitles → Remotion MP4 passes media probe
+- [~] M10b Real Director bridge / HyperFrames: real video layer implementation landed; second-provider real-media CI verification in progress
 
 ## Verified Evidence
 - Golden Baseline gate: GitHub Actions run #55 (`32886279334`) completed successfully using `mode: approved_fingerprint`, baseline `cinematic-intro-v1`; all 9 frames matched exact SHA-256 with Hamming distance 0.
-- Provider Independence gate: GitHub Actions Provider Independence run #3 (`32887649705`) completed successfully.
-- HyperFrames artifact: 7.0s H.264 video + AAC audio, media probe PASS.
-- Provider comparison: `provider_independence_proven: true`, while the last verified run still predates Phase 3 semantic parity implementation.
+- Provider Independence original gate: run #3 (`32887649705`) proved two executable providers.
+- Provider Independence Phase 3 gate: run #9 (`32926669799`) completed SUCCESS including Remotion render, HyperFrames strict render, both media probes, provider comparison, Cross-provider Semantic QA and semantic evidence verification.
+- Real AI Director upstream: `ai-director-engine` Real Media Acceptance run #7 (`32926244006`) completed SUCCESS using a pinned real public-domain human interview; Director Intent QA and Motion Runtime consumer contract both PASS.
+- Real Director→Remotion downstream: Director Bridge Acceptance run #1 (`32926421757`) completed SUCCESS; exact accepted Motion IR rendered with the pinned source footage and final MP4 passed media-stream probe. Artifact ID `9591739910`.
 
-## Phase 3 Implementation Landed
-- HyperFrames compiler v0.3 maps `blur-fade-rise` using seekable GSAP opacity/y/filter animation.
-- HyperFrames compiler maps title exit fade with a registered seekable timeline.
-- HyperFrames compiler maps left→right light-cut with seekable xPercent motion.
-- HyperFrames compiler maps `subtle-push-in` camera intent through stage scale animation.
-- Compiler emits normalized `semantic_mappings` instead of silently dropping intent.
-- `cross-provider-semantic-qa.mjs` verifies mapped semantics, subtitle/audio windows, runtime smoke and zero remaining compile warnings.
-- Remotion RenderResult now emits semantic coverage as the reference provider so provider comparison can represent semantic equivalence correctly.
+## Phase 3 Closed
+`Same Motion IR → Remotion + HyperFrames → artifacts PASS → zero semantic downgrade warnings → cross-provider semantic QA PASS → semantic equivalence evidence`
 
-## Current Phase 3 Gate
-`Same Motion IR → Remotion + HyperFrames → both artifacts PASS → zero semantic downgrade warnings → cross-provider semantic QA PASS → semantic equivalence evidence`
+M8/M9 are now DONE based on run #9, not merely code presence.
 
-## Definition of Done
-Provider Independence 已完成。Phase 3 只有在新的 CI 实际通过 HyperFrames strict render、media probe、provider comparison 和 cross-provider semantic QA 后，M8/M9 才能从 `[~]` 升为 `[x]`。不要求像素一致，但要求关键 motion semantics、时序、字幕、音频、镜头意图在多个 Provider 上达到可解释的一致性。
+## Current Gate
+`Real human MP4 → AI Director Engine → Director IR → Motion IR → source-video layer → Remotion + HyperFrames → media-probed artifacts`
+
+Remotion side is DONE. HyperFrames real-media side remains separate until its dedicated acceptance workflow succeeds.
 
 ## Constraints
 - 不把未来 Blender/Unreal 做进当前实现，只保留 adapter seam
