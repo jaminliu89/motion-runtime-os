@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition} from 'remotion';
 import cinematicIr from '../examples/cinematic-intro/motion-ir.json';
 import multiSceneIr from '../examples/multi-scene-demo/motion-ir.json';
+import realMediaDirectorIr from '../examples/real-media-director/motion-ir.json';
 import {GenericMotion} from './compositions/GenericMotion';
 
 const durationFrames = (ir: {canvas: {fps: number}; scenes: Array<{duration: number}>}) =>
@@ -27,6 +28,15 @@ export const RemotionRoot: React.FC = () => {
         width={multiSceneIr.canvas.width}
         height={multiSceneIr.canvas.height}
         defaultProps={{ir: multiSceneIr}}
+      />
+      <Composition
+        id="RealMediaDirector"
+        component={GenericMotion}
+        durationInFrames={durationFrames(realMediaDirectorIr)}
+        fps={realMediaDirectorIr.canvas.fps}
+        width={realMediaDirectorIr.canvas.width}
+        height={realMediaDirectorIr.canvas.height}
+        defaultProps={{ir: realMediaDirectorIr}}
       />
     </>
   );
