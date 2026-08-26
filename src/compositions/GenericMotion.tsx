@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-import {Audio} from '@remotion/media';
+import {Audio, Video} from '@remotion/media';
 import type {MotionIR} from '../motion-ir';
 
 type Props = {ir: MotionIR};
@@ -29,6 +29,18 @@ const LightLayer: React.FC<{layer: Layer; sceneOffset: number}> = ({layer, scene
   return <div style={{position:'absolute',top:'-20%',bottom:'-20%',left:`${p}%`,width:5,zIndex:layer.z ?? 0,transform:'rotate(8deg)',background:'linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.95) 50%, rgba(255,255,255,0))',boxShadow:'0 0 32px 10px rgba(255,255,255,0.22)'}}/>;
 };
 
+const VideoLayer: React.FC<{layer: Layer; sceneOffset: number}> = ({layer, sceneOffset}) => {
+  const {fps} = useVideoConfig();
+  if (!layer.asset_ref) return null;
+  const from = Math.round(sceneOffset + layer.start * fps);
+  const durationInFrames = Math.max(1, Math.round((layer.end - layer.start) * fps));
+  return <Sequence from={from} durationInFrames={durationInFrames} layout="none">
+    <AbsoluteFill style={{zIndex:layer.z ?? -100,backgroundColor:'#000'}}>
+      <Video src={staticFile(layer.asset_ref)} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+    </AbsoluteFill>
+  </Sequence>;
+};
+
 const SubtitleLayer: React.FC<{scene: Scene; sceneOffset: number}> = ({scene, sceneOffset}) => {
   const frame = useCurrentFrame() - sceneOffset;
   const {fps} = useVideoConfig();
@@ -55,6 +67,7 @@ const AudioTracks: React.FC<{scene: Scene; sceneOffset: number}> = ({scene, scen
 const renderLayer = (layer: Layer, sceneOffset: number) => {
   if (layer.type === 'text') return <TextLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;
   if (layer.type === 'light') return <LightLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;
+  if (layer.type === 'video') return <VideoLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;
   if (layer.type === 'background') return <AbsoluteFill key={layer.id} style={{backgroundColor: layer.content ?? '#000', zIndex: layer.z ?? -100}}/>;
   return null;
 };
