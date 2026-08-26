@@ -1,0 +1,64 @@
+name: Directed MG HyperFrames Acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/mg_*.py'
+      - 'examples/directed-mg/**'
+      - 'scripts/build-directed-mg.py'
+      - 'scripts/compile-hyperframes-project.mjs'
+      - 'scripts/run-hyperframes-provider.mjs'
+      - 'runtime/providers/hyperframes-provider.mjs'
+      - '.github/workflows/directed-mg-hyperframes-acceptance.yml'
+  workflow_dispatch:
+
+jobs:
+  directed-mg-hyperframes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install runtime dependencies
+        run: npm install
+      - name: Stage pinned public-domain source
+        run: |
+          mkdir -p public/assets out/hyperframes-directed evidence/hyperframes-directed
+          curl -L --fail --retry 3 'https://d34w7g4gy10iej.cloudfront.net/video/2603/DOD_111581929/DOD_111581929.mp4' -o public/assets/directed-mg-source.mp4
+          echo 'a93869b5712154b990909a3bfb14e2636a5cce59174ecd64854abdbda302fad0  public/assets/directed-mg-source.mp4' | sha256sum -c -
+      - name: Compile Director IR to MG Motion IR
+        run: |
+          python scripts/build-directed-mg.py
+          node scripts/validate-motion-ir.mjs examples/directed-mg/motion-ir.json
+      - name: Render Directed MG through HyperFrames
+        run: node scripts/run-hyperframes-provider.mjs examples/directed-mg/motion-ir.json out/hyperframes-directed/directed.mp4 out/hyperframes-directed/render-result.json
+      - name: Require MG semantic parity mappings
+        run: |
+          test -s out/hyperframes/project/compile-report.json
+          grep -q 'mg.bar_chart' out/hyperframes/project/compile-report.json
+          grep -q 'mg.comparison' out/hyperframes/project/compile-report.json
+          grep -q 'mg.hero_text' out/hyperframes/project/compile-report.json
+          grep -q 'mg.process_flow' out/hyperframes/project/compile-report.json
+          node -e "const r=require('./out/hyperframes/project/compile-report.json'); const bad=r.warnings.filter(w=>/mg|shape/.test(w.feature)); if(bad.length) throw new Error(JSON.stringify(bad)); console.log('HyperFrames MG semantic parity PASS', r.mg_mappings.length)"
+      - name: Verify real video and source audio
+        run: |
+          node scripts/verify-media-streams.mjs out/hyperframes-directed/directed.mp4 evidence/hyperframes-directed/media-probe.json
+          grep -q '"status": "PASS"' evidence/hyperframes-directed/media-probe.json
+          sha256sum out/hyperframes-directed/directed.mp4 > evidence/hyperframes-directed/output.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: directed-mg-hyperframes-real-media
+          path: |
+            out/hyperframes-directed/directed.mp4
+            out/hyperframes-directed/render-result.json
+            out/hyperframes/project/compile-report.json
+            examples/directed-mg/mg-plan.json
+            examples/directed-mg/motion-ir.json
+            evidence/hyperframes-directed/*
+          if-no-files-found: error
