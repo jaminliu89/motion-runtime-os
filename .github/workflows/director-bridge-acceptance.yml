@@ -1,0 +1,58 @@
+name: Director Bridge Acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/real-media-director/**'
+      - 'src/Root.tsx'
+      - 'src/compositions/GenericMotion.tsx'
+      - 'src/motion-ir.ts'
+      - 'scripts/validate-motion-ir.mjs'
+      - 'scripts/verify-media-streams.mjs'
+      - 'package.json'
+      - '.github/workflows/director-bridge-acceptance.yml'
+  workflow_dispatch:
+
+jobs:
+  real-media-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Stage pinned public-domain source video
+        run: |
+          mkdir -p public/assets out evidence/director-bridge
+          curl -L --fail --retry 3 \
+            'https://d34w7g4gy10iej.cloudfront.net/video/2603/DOD_111581929/DOD_111581929.mp4' \
+            -o public/assets/real-media-interview.mp4
+          echo 'a93869b5712154b990909a3bfb14e2636a5cce59174ecd64854abdbda302fad0  public/assets/real-media-interview.mp4' | sha256sum -c -
+      - name: Validate real Director Motion IR
+        run: node scripts/validate-motion-ir.mjs examples/real-media-director/motion-ir.json
+      - name: Typecheck runtime
+        run: npx tsc --noEmit
+      - name: Render real Director composition
+        run: npx remotion render src/index.ts RealMediaDirector out/real-media-director.mp4
+      - name: Probe rendered media streams
+        run: node scripts/verify-media-streams.mjs out/real-media-director.mp4 evidence/director-bridge/media-probe.json
+      - name: Verify bridge evidence
+        run: |
+          test -s out/real-media-director.mp4
+          test -s evidence/director-bridge/media-probe.json
+          grep -q '"status": "PASS"' evidence/director-bridge/media-probe.json
+          sha256sum out/real-media-director.mp4 > evidence/director-bridge/output.sha256
+          cp examples/real-media-director/motion-ir.json evidence/director-bridge/motion-ir.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-media-director-render
+          path: |
+            out/real-media-director.mp4
+            evidence/director-bridge/media-probe.json
+            evidence/director-bridge/output.sha256
+            evidence/director-bridge/motion-ir.json
+          if-no-files-found: error
