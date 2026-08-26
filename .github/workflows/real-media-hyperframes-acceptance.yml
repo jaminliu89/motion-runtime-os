@@ -1,0 +1,55 @@
+name: Real Media HyperFrames Acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/real-media-director/**'
+      - 'scripts/compile-hyperframes-project.mjs'
+      - 'scripts/run-hyperframes-provider.mjs'
+      - 'runtime/providers/hyperframes-provider.mjs'
+      - 'package.json'
+      - '.github/workflows/real-media-hyperframes-acceptance.yml'
+  workflow_dispatch:
+
+jobs:
+  real-media-hyperframes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Stage pinned public-domain source video
+        run: |
+          mkdir -p public/assets out/hyperframes-real evidence/hyperframes-real
+          curl -L --fail --retry 3 \
+            'https://d34w7g4gy10iej.cloudfront.net/video/2603/DOD_111581929/DOD_111581929.mp4' \
+            -o public/assets/real-media-interview.mp4
+          echo 'a93869b5712154b990909a3bfb14e2636a5cce59174ecd64854abdbda302fad0  public/assets/real-media-interview.mp4' | sha256sum -c -
+      - name: Validate shared Motion IR
+        run: node scripts/validate-motion-ir.mjs examples/real-media-director/motion-ir.json
+      - name: Render through HyperFrames provider
+        run: node scripts/run-hyperframes-provider.mjs examples/real-media-director/motion-ir.json out/hyperframes-real/real-media-director.mp4 out/hyperframes-real/render-result.json
+      - name: Probe HyperFrames artifact
+        run: node scripts/verify-media-streams.mjs out/hyperframes-real/real-media-director.mp4 evidence/hyperframes-real/media-probe.json
+      - name: Verify second-provider evidence
+        run: |
+          test -s out/hyperframes-real/real-media-director.mp4
+          test -s out/hyperframes-real/render-result.json
+          test -s out/hyperframes/project/compile-report.json
+          grep -q '"status": "PASS"' evidence/hyperframes-real/media-probe.json
+          sha256sum out/hyperframes-real/real-media-director.mp4 > evidence/hyperframes-real/output.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-media-hyperframes-render
+          path: |
+            out/hyperframes-real/real-media-director.mp4
+            out/hyperframes-real/render-result.json
+            out/hyperframes/project/compile-report.json
+            evidence/hyperframes-real/media-probe.json
+            evidence/hyperframes-real/output.sha256
+          if-no-files-found: error
