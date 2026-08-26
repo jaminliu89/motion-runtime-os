@@ -1,0 +1,33 @@
+name: MG Intelligence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/mg_planner.py'
+      - 'schemas/mg-plan.schema.json'
+      - 'tests/test_mg_planner.py'
+      - 'docs/MG_INTELLIGENCE_SPEC.md'
+      - '.github/workflows/mg-intelligence.yml'
+  pull_request:
+    paths:
+      - 'runtime/mg_planner.py'
+      - 'schemas/mg-plan.schema.json'
+      - 'tests/test_mg_planner.py'
+      - 'docs/MG_INTELLIGENCE_SPEC.md'
+      - '.github/workflows/mg-intelligence.yml'
+
+jobs:
+  mg-intelligence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest jsonschema
+      - name: Run semantic MG planner tests
+        run: python -m pytest -q tests/test_mg_planner.py
+      - name: Validate generated MG Plan against schema
+        run: >-
+          python -c "import json; from jsonschema import Draft202012Validator; from runtime.mg_planner import plan; s=json.load(open('schemas/mg-plan.schema.json')); p=plan({'segments':[{'id':'r','start':0,'end':3,'narrative_function':'revelation','attention_target':'30','confidence':.9},{'id':'e','start':3,'end':6,'narrative_function':'exposition','attention_target':None,'confidence':.6}]}); Draft202012Validator(s).validate(p); print('MG Plan schema PASS')"
