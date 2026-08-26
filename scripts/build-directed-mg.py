@@ -1,9 +1,14 @@
 import json
+import sys
 from pathlib import Path
+
+root=Path(__file__).resolve().parents[1]
+if str(root) not in sys.path:
+    sys.path.insert(0,str(root))
+
 from runtime.mg_planner import plan
 from runtime.mg_compiler import compile_motion_ir
 
-root=Path(__file__).resolve().parents[1]
 director=json.loads((root/'examples/directed-mg/director-ir.json').read_text(encoding='utf-8'))
 mg=plan(director)
 (root/'examples/directed-mg/mg-plan.json').write_text(json.dumps(mg,ensure_ascii=False,indent=2),encoding='utf-8')
