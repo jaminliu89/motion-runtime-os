@@ -9,6 +9,8 @@ on:
       - 'src/Root.tsx'
       - 'examples/directed-mg/**'
       - 'scripts/build-directed-mg.py'
+      - 'scripts/build_blind_preference_pack.py'
+      - 'scripts/score_blind_preference.py'
       - '.github/workflows/directed-mg-acceptance.yml'
   workflow_dispatch:
 
@@ -57,12 +59,24 @@ jobs:
           grep -q '"codec_name"' evidence/directed-mg/neutral-audio-probe.json
           sha256sum out/directed-mg/neutral.mp4 > evidence/directed-mg/neutral.sha256
           sha256sum out/directed-mg/directed.mp4 > evidence/directed-mg/directed.sha256
+      - name: Build concealed human preference pack
+        run: |
+          python scripts/build_blind_preference_pack.py --neutral out/directed-mg/neutral.mp4 --directed out/directed-mg/directed.mp4 --out out/preference-pack --seed 20260826
+          test -s out/preference-pack/A.mp4
+          test -s out/preference-pack/B.mp4
+          test -s out/preference-pack/study.json
+          test -s out/preference-pack/answer-key.json
       - uses: actions/upload-artifact@v4
         with:
           name: directed-mg-ab-real-media
           path: |
             out/directed-mg/neutral.mp4
             out/directed-mg/directed.mp4
+            out/preference-pack/A.mp4
+            out/preference-pack/B.mp4
+            out/preference-pack/study.json
+            out/preference-pack/answer-key.json
+            out/preference-pack/votes.jsonl
             examples/directed-mg/director-ir.json
             examples/directed-mg/mg-plan.json
             examples/directed-mg/motion-ir.json
