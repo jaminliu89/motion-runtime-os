@@ -1,0 +1,63 @@
+name: Directed MG Real Media Acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/mg_*.py'
+      - 'src/compositions/GenericMotion.tsx'
+      - 'src/Root.tsx'
+      - 'examples/directed-mg/**'
+      - 'scripts/build-directed-mg.py'
+      - '.github/workflows/directed-mg-acceptance.yml'
+  workflow_dispatch:
+
+jobs:
+  directed-mg:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install system and runtime dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          npm install
+      - name: Stage pinned public-domain vertical source
+        run: |
+          mkdir -p public/assets out/directed-mg evidence/directed-mg
+          curl -L --fail --retry 3 'https://d34w7g4gy10iej.cloudfront.net/video/2603/DOD_111581929/DOD_111581929.mp4' -o public/assets/directed-mg-source.mp4
+          echo 'a93869b5712154b990909a3bfb14e2636a5cce59174ecd64854abdbda302fad0  public/assets/directed-mg-source.mp4' | sha256sum -c -
+      - name: Compile semantic MG plan to Motion IR
+        run: |
+          python scripts/build-directed-mg.py
+          node scripts/validate-motion-ir.mjs examples/directed-mg/motion-ir.json
+          grep -q '"mg_kind": "bar_chart"' examples/directed-mg/motion-ir.json
+          grep -q '"mg_kind": "comparison"' examples/directed-mg/motion-ir.json
+          grep -q '"mg_kind": "hero_text"' examples/directed-mg/motion-ir.json
+      - name: Render Directed MG locally with Remotion
+        run: npx remotion render src/index.ts DirectedMG out/directed-mg/directed.mp4
+      - name: Verify video and preserved source audio
+        run: |
+          test -s out/directed-mg/directed.mp4
+          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of json out/directed-mg/directed.mp4 | tee evidence/directed-mg/video-probe.json
+          ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of json out/directed-mg/directed.mp4 | tee evidence/directed-mg/audio-probe.json
+          grep -q '"codec_name"' evidence/directed-mg/video-probe.json
+          grep -q '"codec_name"' evidence/directed-mg/audio-probe.json
+          sha256sum out/directed-mg/directed.mp4 > evidence/directed-mg/final.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: directed-mg-real-media
+          path: |
+            out/directed-mg/directed.mp4
+            examples/directed-mg/director-ir.json
+            examples/directed-mg/mg-plan.json
+            examples/directed-mg/motion-ir.json
+            evidence/directed-mg/*.json
+            evidence/directed-mg/final.sha256
+          if-no-files-found: error
