@@ -1,1 +1,41 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"mg-plan.schema.json","title":"MGPlan","type":"object","required":["version","segments"],"properties":{"version":{"const":"1.0"},"segments":{"type":"array","items":{"type":"object","required":["segment_id","narrative_function","restraint","grammar","timing","provider_requirements"],"properties":{"segment_id":{"type":"string"},"narrative_function":{"enum":["setup","escalation","contrast","question","reveal","payoff","callback","proof","explanation"]},"attention_target":{"type":["string","null"]},"confidence":{"type":"number","minimum":0,"maximum":1},"restraint":{"enum":["high","medium","low"]},"grammar":{"type":"array","minItems":1,"items":{"enum":["kinetic_text","word_reveal","keyword_isolation","number_counter","mask_reveal","type_scale_contrast","tracking_shift","node_graph","causal_chain","process_flow","timeline","comparison_map","hierarchy","callout_annotation","bar_chart","line_chart","percentage","ranking","counter","before_after","delta","progress","push_in","pull_out","parallax","depth_stack","rack_attention","focus_isolation","pan","orbit","match_cut","semantic_morph","mask_wipe","directional_wipe","whip","flash","dissolve","hard_interrupt","browser_frame","phone_frame","chat_bubble","code_panel","search_result","document_highlight","screenshot_focus","quote_card","freeze","blackout","negative_space","slow_reveal","impact_hit","breath","silence_hold","acceleration","deceleration","suppress_background"]}},"timing":{"type":"object","required":["duration"],"properties":{"duration":{"type":"number","exclusiveMinimum":0},"build":{"type":"number","minimum":0},"pause":{"type":"number","minimum":0},"reveal":{"type":"number","minimum":0}}},"provider_requirements":{"type":"array","items":{"type":"string"}},"rationale":{"type":"string"}}}}}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mg-plan.schema.json",
+  "title": "MGPlan",
+  "type": "object",
+  "required": ["version", "segments"],
+  "properties": {
+    "version": {"const": "1.0"},
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["segment_id", "narrative_function", "restraint", "grammar", "timing", "provider_requirements"],
+        "properties": {
+          "segment_id": {"type": "string"},
+          "narrative_function": {"enum": ["setup", "escalation", "contrast", "question", "reveal", "payoff", "callback", "proof", "explanation"]},
+          "attention_target": {"type": ["string", "null"]},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "restraint": {"enum": ["high", "medium", "low"]},
+          "grammar": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"enum": ["kinetic_text", "word_reveal", "keyword_isolation", "number_counter", "mask_reveal", "type_scale_contrast", "tracking_shift", "node_graph", "causal_chain", "process_flow", "timeline", "comparison_map", "hierarchy", "callout_annotation", "bar_chart", "line_chart", "percentage", "ranking", "counter", "before_after", "delta", "progress", "push_in", "pull_out", "parallax", "depth_stack", "rack_attention", "focus_isolation", "pan", "orbit", "match_cut", "semantic_morph", "mask_wipe", "directional_wipe", "whip", "flash", "dissolve", "hard_interrupt", "browser_frame", "phone_frame", "chat_bubble", "code_panel", "search_result", "document_highlight", "screenshot_focus", "quote_card", "freeze", "blackout", "negative_space", "slow_reveal", "impact_hit", "breath", "silence_hold", "acceleration", "deceleration", "suppress_background"]}
+          },
+          "timing": {
+            "type": "object",
+            "required": ["duration"],
+            "properties": {
+              "duration": {"type": "number", "exclusiveMinimum": 0},
+              "build": {"type": "number", "minimum": 0},
+              "pause": {"type": "number", "minimum": 0},
+              "reveal": {"type": "number", "minimum": 0}
+            }
+          },
+          "provider_requirements": {"type": "array", "items": {"type": "string"}},
+          "rationale": {"type": "string"}
+        }
+      }
+    }
+  }
+}
