@@ -1,0 +1,23 @@
+{
+  "version":"1.0",
+  "canvas":{"width":1080,"height":1920,"fps":30,"background":"#0b0b0b"},
+  "scenes":[{
+    "id":"directed-mg","duration":20.0,"camera":{"movement":"subtle-push-in"},
+    "layers":[
+      {"id":"source-video","type":"video","asset_ref":"assets/directed-mg-source.mp4","start":0,"end":20,"z":-100},
+      {"id":"mg-0-counter","type":"text","start":0,"end":6,"z":36,"content":"30","style":{"mg_kind":"number_counter","fontSize":190,"tracking":-0.03},"enter":{"type":"scale-count","duration":0.8},"exit":{"type":"fade","duration":0.35},"safe_area":true},
+      {"id":"mg-0-data","type":"shape","start":0.2,"end":6,"z":25,"content":"30","style":{"mg_kind":"bar_chart","bars":[0.34,0.58,0.82,1.0],"label":"30"},"enter":{"type":"grow","duration":0.75},"exit":{"type":"fade","duration":0.35}},
+      {"id":"mg-0-diagram","type":"shape","start":0,"end":6,"z":26,"content":"30","style":{"mg_kind":"process_flow","nodes":["问题","判断","结果"]},"enter":{"type":"draw","duration":0.85},"exit":{"type":"fade","duration":0.35}},
+      {"id":"mg-1-compare","type":"shape","start":6,"end":12,"z":24,"content":"但是","style":{"mg_kind":"comparison","left":"过去","right":"现在"},"enter":{"type":"split","duration":0.55},"exit":{"type":"fade","duration":0.35}},
+      {"id":"mg-2-veil","type":"shape","start":12,"end":20,"z":5,"content":"","style":{"mg_kind":"veil","opacity":0.46}},
+      {"id":"mg-2-type","type":"text","start":12.12,"end":20,"z":30,"content":"真正的问题","style":{"mg_kind":"hero_text","tracking":0.02,"fontSize":104,"maxWidth":1500},"enter":{"type":"blur-fade-rise","duration":0.55},"hold":{"type":"steady"},"exit":{"type":"fade","duration":0.35},"safe_area":true},
+      {"id":"mg-2-impact","type":"light","start":12.18,"end":12.52,"z":45,"transform":{"from":"left","to":"right"},"easing":"cinematic-expo"}
+    ],
+    "subtitle_cues":[
+      {"id":"subtitle-0","start":0,"end":6,"text":"两个月，我们做了 30 个产品。"},
+      {"id":"subtitle-1","start":6,"end":12,"text":"但是，数量从来不是最重要的问题。"},
+      {"id":"subtitle-2","start":12,"end":20,"text":"真正的问题，是它们能不能形成一条闭环。"}
+    ],
+    "audio_tracks":[],"audio_cues":[]
+  }]
+}
