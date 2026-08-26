@@ -1,60 +1,60 @@
 # Master Task
 
 ## Goal
-跑通 Motion Runtime OS 的真实可执行闭环，并证明 Renderer/Provider 接口不是单样例假象；在此基础上建立无需付费 NLE 依赖的 Semantic Motion / MG Intelligence。
+Build a local-first Semantic Motion / MG Intelligence stack that turns Director intent into visually coherent motion without paid NLE dependency, while preserving provider independence, evidence and human takeover.
 
 ## Current Status
-- [x] M1 Runtime contracts: Storyboard/SceneGraph/Timeline/MotionIR/RenderJob/ArtifactManifest/RenderResult
-- [x] M2 Director skills and provider-neutral motion intent
-- [x] M3a Remotion executable adapter
-- [x] M3b HyperFrames executable adapter
-- [x] M4 Render/media/audio/subtitle evidence
-- [x] M5 Quality + Golden Baseline + visual regression
-- [x] M6 Multi-example rendering
-- [x] M7 Provider Independence: same Motion IR through Remotion + HyperFrames
-- [x] M8/M9 Cross-provider semantic parity/QA for established Motion IR semantics
-- [x] M10 Real Director bridge through Remotion + HyperFrames with source video/audio
-- [x] M11 MG Plan v1: machine schema + composable grammar + restraint policy
-- [x] M12 Semantic MG Planner: Director IR → differentiated proof/contrast/question/reveal/exposition grammar
-- [x] M13 MG Plan → Motion IR compiler with source-video/subtitle lineage
-- [x] M14 Generic Remotion Runtime executes MG typography/data/diagram/rhythm primitives (`number_counter`, `bar_chart`, `comparison`, `process_flow`, `veil`, `hero_text`, impact/camera)
-- [x] M15 MG QA: grammar-family diversity, strong-effect density, exposition restraint, attention target and timing gates
-- [x] M16 Real 20s A/B acceptance: pinned vertical human source → Neutral subtitle-only baseline + Directed MG → both MP4 → source audio preserved → artifact upload
-- [x] M16b HyperFrames MG parity: same Directed Motion IR executes `bar_chart`, `comparison`, `process_flow`, `hero_text`, `number_counter`, `veil` with strict seek-safe lint and source audio
-- [~] M17 Human blind preference: reproducible concealed A/B pack + scorer DONE; real reviewer votes / preference lift still pending
-- [~] M18 Motion Canvas provider: product decision and entry gate DONE; provider remains EXPERIMENTAL until unattended headless CI is proven
-- [ ] M19 Expand grammar execution: line charts, timelines, node graphs, document/UI motion, mask/morph transitions
-- [~] M20 Zhijian MG takeover: MG provenance visible and preserved in Override Evidence; richer per-effect parameter controls remain
+- [x] M1–M10 Runtime contracts, Remotion/HyperFrames providers, media evidence, semantic parity and real Director bridge.
+- [x] M11 MG Plan v1: machine schema + composable grammar + restraint policy.
+- [x] M12 Semantic MG Planner: Director IR → differentiated proof/contrast/question/reveal/exposition grammar.
+- [x] M13 MG Plan → Motion IR compiler with source-video/subtitle lineage.
+- [x] M14 Remotion MG execution baseline: number/data/comparison/process/veil/hero/impact/camera.
+- [x] M15 MG QA: grammar diversity, strong-effect density, exposition restraint, attention and timing gates.
+- [x] M16 Real 20s Neutral vs Directed A/B acceptance with source audio.
+- [x] M16b HyperFrames MG parity with strict seek-safe execution and source audio.
+- [~] M17 Human blind preference: concealed A/B pack + scorer DONE; real reviewer votes/preference lift pending.
+- [~] M18 Motion Canvas: EXPERIMENTAL until unattended headless CI render is proven.
+- [x] M19a Art Direction Engine v1: `editorial_restraint`, `precision_tech`, `kinetic_signal`; style tokens change palette/type/geometry/rhythm/intensity while semantic grammar remains invariant.
+- [x] M19b Real Art Direction acceptance: all three profiles render real media in Remotion; `precision_tech` renders the same Motion IR through HyperFrames.
+- [x] M19c Expanded grammar cross-provider acceptance: `line_chart`, `timeline`, `node_graph`, `document_highlight`, `browser_frame`, `mask_reveal/hero_text` execute on Remotion + HyperFrames with no MG semantic downgrade.
+- [~] M20 Zhijian MG takeover: MG + Art Direction provenance survives Timeline import and Override Evidence; richer parameter-level effect editing remains.
+- [ ] M21 Style Selection Intelligence: choose Art Direction from content/audience/brand/context rather than user picking a preset blindly.
+- [ ] M22 Preference Learning: convert blind-study votes and Zhijian overrides into typed style/grammar preference signals without silently mutating canonical assets.
+- [ ] M23 Advanced grammar: semantic morph, masks, spatial continuity, richer charts/maps/UI/document choreography and multi-layer scene composition.
 
 ## Verified Evidence
-- Provider Independence Phase 3 run `32926669799`: SUCCESS.
-- Real Director→Remotion run `32926421757`: SUCCESS, artifact `9591739910`.
-- Real Director→HyperFrames run `32926669798`: SUCCESS, artifact `9591815442`.
-- MG Intelligence compiler/QA run `32965740388`: SUCCESS. Planner + compiler + schema + restraint/diversity QA + renderer build all PASS.
-- Directed MG A/B run `32974061233`: SUCCESS.
-  - Neutral and Directed 20s vertical MP4 both rendered locally and retained source audio;
-  - concealed human-study package (`A.mp4`, `B.mp4`, `study.json`, `answer-key.json`, `votes.jsonl`) generated deterministically;
-  - artifact `9608852317`, size ~118.4 MB, digest `sha256:57509aad783224d96dda01c81739058577f456f83437d3a10d277d6bc8f35621`.
-- Directed MG HyperFrames Acceptance run `32974210663`: SUCCESS.
-  - exact same MG Motion IR rendered through HyperFrames strict mode;
-  - MG semantic mapping gate PASS with no MG/shape downgrade warnings;
-  - source video/audio media probe PASS;
-  - artifact `9608898870`, digest `sha256:b0ad4ca884a81b1c5b56b0b5796fa2856b7fe029aafe9279cfaec4ccdeedbcd9`.
+- MG Intelligence + Art Direction semantic gate run `32975984410`: SUCCESS.
+- Directed MG A/B run `32974061233`: SUCCESS; concealed study artifact `9608852317`, digest `sha256:57509aad783224d96dda01c81739058577f456f83437d3a10d277d6bc8f35621`.
+- Directed MG HyperFrames run `32974210663`: SUCCESS; artifact `9608898870`, digest `sha256:b0ad4ca884a81b1c5b56b0b5796fa2856b7fe029aafe9279cfaec4ccdeedbcd9`.
+- Art Direction real-media run `32976364819`: SUCCESS.
+  - semantic invariance across all three profiles PASS;
+  - all three profiles rendered through Remotion with source audio;
+  - `precision_tech` exact Motion IR rendered through HyperFrames with media/parity checks;
+  - artifact `9609809535`, ~66.9 MB, digest `sha256:ef897ef254682c5f333cadeda98939aea3760ec89a950f356481786601bc624d`.
+- Expanded MG cross-provider run `32976405003`: SUCCESS.
+  - exact same expanded Motion IR rendered by Remotion and HyperFrames;
+  - line chart/timeline/node graph/document/browser/mask-reveal semantics mapped without MG/shape downgrade warnings;
+  - source audio preserved;
+  - artifact `9609855462`, ~40.0 MB, digest `sha256:0b7120ceee9f975ddee782a31e15b674e3a73b7a1f6e04004b9428c4e356bc97`.
+- Zhijian Art Direction provenance run `32976886488`: SUCCESS — Python contract tests + frontend build PASS.
 
 ## Product Decision
-ChatCut is OPTIONAL_PROVIDER / BENCHMARK, not a release dependency. The verified local-first execution pair is now:
-`Director IR → MG Planner → MG Plan/Motion Grammar → Motion IR → Remotion | HyperFrames → QA → Zhijian human takeover`.
+ChatCut remains OPTIONAL_PROVIDER / BENCHMARK. Verified local path:
+`Director IR → MG Planner → Art Direction → MG Plan → Motion IR → Remotion | HyperFrames → QA → Zhijian takeover → Preference Evidence`.
 
-Motion Canvas remains a future diagram/vector specialist, but is not allowed into the VERIFIED provider list until an unattended headless CI render passes its entry gate. See `docs/MOTION_CANVAS_PROVIDER_DECISION.md`.
+Motion Canvas remains a future diagram/vector specialist and cannot be marked VERIFIED until unattended headless CI passes.
 
-The second technical risk is now closed: MG semantics are not Remotion-specific. The next hard quality gate is human preference, followed by expanding grammar breadth and style/art-direction quality.
+## Next Primary Battle
+The technical question “can local code generate sophisticated MG?” is closed. The next battle is **taste and selection**:
+1. select the right art direction automatically;
+2. learn from blind human preference and real timeline overrides;
+3. improve scene composition and transitions without increasing decorative effect density.
 
 ## Constraints
 - Renderer/provider never owns narrative meaning.
-- No template-ID architecture; grammar is composable semantics.
-- Do not animate every sentence; restraint is a first-class QA dimension.
-- No paid-provider release dependency.
-- No provider-specific JSX/API leakage into Motion IR.
-- Render success alone is never quality DONE.
-- Golden Baseline is approval-controlled.
-- Provider Independence ≠ Semantic Equivalence ≠ Pixel Identity ≠ Human Preference; measure them separately.
+- Art Direction may restyle semantics, never rewrite them.
+- No template-ID architecture or paid-provider release dependency.
+- Do not animate every sentence; restraint is first-class.
+- No provider-specific APIs in Motion IR.
+- Render success ≠ semantic quality ≠ human preference.
+- Preference learning must be evidence-based, versioned and reversible.
