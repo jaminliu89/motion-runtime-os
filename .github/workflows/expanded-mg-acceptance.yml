@@ -1,0 +1,75 @@
+name: Expanded MG Cross Provider Acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/mg_compiler.py'
+      - 'runtime/art_direction.py'
+      - 'scripts/build-expanded-mg.py'
+      - 'examples/expanded-mg/**'
+      - 'src/Root.tsx'
+      - 'src/compositions/GenericMotion.tsx'
+      - 'scripts/compile-hyperframes-project.mjs'
+      - '.github/workflows/expanded-mg-acceptance.yml'
+  workflow_dispatch:
+
+jobs:
+  expanded-mg:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          npm install
+      - name: Stage pinned source
+        run: |
+          mkdir -p public/assets out/expanded-mg evidence/expanded-mg
+          curl -L --fail --retry 3 'https://d34w7g4gy10iej.cloudfront.net/video/2603/DOD_111581929/DOD_111581929.mp4' -o public/assets/expanded-mg-source.mp4
+          echo 'a93869b5712154b990909a3bfb14e2636a5cce59174ecd64854abdbda302fad0  public/assets/expanded-mg-source.mp4' | sha256sum -c -
+      - name: Compile expanded grammar
+        run: |
+          python scripts/build-expanded-mg.py
+          node scripts/validate-motion-ir.mjs examples/expanded-mg/motion-ir.json
+          for kind in line_chart timeline node_graph document_highlight browser_frame hero_text; do grep -q "\"mg_kind\": \"$kind\"" examples/expanded-mg/motion-ir.json; done
+      - name: Render through Remotion
+        run: |
+          npx remotion render src/index.ts ExpandedMG out/expanded-mg/remotion.mp4
+          ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of json out/expanded-mg/remotion.mp4 > evidence/expanded-mg/remotion-audio.json
+          grep -q '"codec_name"' evidence/expanded-mg/remotion-audio.json
+      - name: Render exact same Motion IR through HyperFrames
+        run: |
+          node scripts/run-hyperframes-provider.mjs examples/expanded-mg/motion-ir.json out/expanded-mg/hyperframes.mp4 out/expanded-mg/hyperframes-result.json
+          node scripts/verify-media-streams.mjs out/expanded-mg/hyperframes.mp4 evidence/expanded-mg/hyperframes-media.json
+          grep -q '"status": "PASS"' evidence/expanded-mg/hyperframes-media.json
+          python - <<'PY'
+          import json
+          r=json.load(open('out/hyperframes/project/compile-report.json'))
+          required={'line_chart','timeline','node_graph','document_highlight','browser_frame','hero_text'}
+          mapped={x['feature'].split('.mg.')[-1] for x in r.get('mg_mappings',[]) if '.mg.' in x.get('feature','')}
+          missing=required-mapped
+          assert not missing, (missing,mapped,r.get('warnings'))
+          assert not [w for w in r.get('warnings',[]) if '.shape.' in w.get('feature','') or '.mg.' in w.get('feature','')], r.get('warnings')
+          print('Expanded MG semantic parity PASS')
+          PY
+      - name: Hash artifacts
+        run: |
+          sha256sum out/expanded-mg/remotion.mp4 out/expanded-mg/hyperframes.mp4 > evidence/expanded-mg/artifacts.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: expanded-mg-cross-provider
+          path: |
+            out/expanded-mg/**
+            out/hyperframes/project/compile-report.json
+            examples/expanded-mg/mg-plan.json
+            examples/expanded-mg/motion-ir.json
+            evidence/expanded-mg/**
+          if-no-files-found: error
