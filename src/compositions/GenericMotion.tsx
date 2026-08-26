@@ -3,84 +3,41 @@ import {AbsoluteFill, Sequence, interpolate, spring, staticFile, useCurrentFrame
 import {Audio, Video} from '@remotion/media';
 import type {MotionIR} from '../motion-ir';
 
-type Props = {ir: MotionIR};
-type Layer = MotionIR['scenes'][number]['layers'][number];
-type Scene = MotionIR['scenes'][number];
+type Props={ir:MotionIR};
+type Layer=MotionIR['scenes'][number]['layers'][number];
+type Scene=MotionIR['scenes'][number];
+const active=(layer:Layer,sceneOffset:number)=>{const frame=useCurrentFrame()-sceneOffset;const{fps}=useVideoConfig();const local=frame-layer.start*fps;return{frame,fps,local,active:frame>=layer.start*fps&&frame<=layer.end*fps}};
+const tokens=(layer:Layer)=>((layer.style?.art_tokens??{}) as any);
 
-const activeProgress = (layer: Layer, sceneOffset: number) => {
-  const frame = useCurrentFrame() - sceneOffset;
-  const {fps} = useVideoConfig();
-  const local = frame - layer.start * fps;
-  const duration = Math.max(1, (layer.end - layer.start) * fps);
-  return {frame, fps, local, duration, active: frame >= layer.start * fps && frame <= layer.end * fps};
+const TextLayer:React.FC<{layer:Layer;sceneOffset:number}>=({layer,sceneOffset})=>{
+  const{frame,fps,local,active:ok}=active(layer,sceneOffset);if(!ok)return null;
+  const enterFrames=Math.max(1,(layer.enter?.duration??.6)*fps);const reveal=spring({frame:Math.max(0,local),fps,durationInFrames:enterFrames,config:{damping:18,stiffness:90,mass:1}});
+  const exitFrames=Math.max(1,(layer.exit?.duration??.35)*fps);const exit=interpolate(frame,[layer.end*fps-exitFrames,layer.end*fps],[1,0],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+  const kind=String(layer.style?.mg_kind??'text');const raw=String(layer.content??'');let display=raw;
+  if(kind==='number_counter'){const m=raw.match(/-?\d+(?:\.\d+)?/);if(m){const target=Number(m[0]);const n=target*reveal;display=raw.replace(m[0],Number.isInteger(target)?String(Math.round(n)):n.toFixed(1));}}
+  const fontSize=Number(layer.style?.fontSize??(kind==='number_counter'?190:92));const scale=kind==='number_counter'?interpolate(reveal,[0,1],[.72,1]):1;
+  const mask=layer.enter?.type==='mask-reveal'?`inset(${(1-reveal)*100}% 0 0 0)`:'none';
+  return <AbsoluteFill style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'0 110px',zIndex:layer.z??0,pointerEvents:'none'}}><div style={{maxWidth:Number(layer.style?.maxWidth??1500),color:String(layer.style?.color??'#f6f2e8'),fontFamily:'Inter, Helvetica Neue, Arial, sans-serif',fontSize,fontWeight:Number(layer.style?.fontWeight??(kind==='number_counter'?750:600)),letterSpacing:`${Number(layer.style?.tracking??.02)}em`,lineHeight:1.02,textAlign:'center',opacity:Math.min(reveal,exit),transform:`translateY(${interpolate(reveal,[0,1],[34,0])}px) scale(${scale})`,filter:`blur(${layer.enter?.type==='mask-reveal'?0:interpolate(reveal,[0,1],[12,0])}px)`,clipPath:mask,textShadow:'0 6px 32px rgba(0,0,0,.45)'}}>{display}</div></AbsoluteFill>;
 };
 
-const TextLayer: React.FC<{layer: Layer; sceneOffset: number}> = ({layer, sceneOffset}) => {
-  const {frame,fps,local,active}=activeProgress(layer,sceneOffset);
-  if (!active) return null;
-  const enterFrames = Math.max(1, (layer.enter?.duration ?? 0.6) * fps);
-  const reveal = spring({frame: Math.max(0,local), fps, durationInFrames: enterFrames, config: {damping: 18, stiffness: 90, mass: 1}});
-  const exitFrames = Math.max(1, (layer.exit?.duration ?? 0.35) * fps);
-  const exit = interpolate(frame, [layer.end * fps - exitFrames, layer.end * fps], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const kind = String(layer.style?.mg_kind ?? 'text');
-  const raw = String(layer.content ?? '');
-  let display = raw;
-  if (kind === 'number_counter') {
-    const match = raw.match(/-?\d+(?:\.\d+)?/);
-    if (match) {
-      const target = Number(match[0]);
-      const n = target * interpolate(reveal,[0,1],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
-      display = raw.replace(match[0], Number.isInteger(target) ? String(Math.round(n)) : n.toFixed(1));
-    }
-  }
-  const fontSize=Number(layer.style?.fontSize ?? (kind === 'number_counter' ? 190 : 92));
-  const scale = kind === 'number_counter' ? interpolate(reveal,[0,1],[0.72,1]) : 1;
-  return <AbsoluteFill style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'0 110px',zIndex:layer.z ?? 0,pointerEvents:'none'}}>
-    <div style={{maxWidth:Number(layer.style?.maxWidth ?? 1500),color:String(layer.style?.color ?? '#f6f2e8'),fontFamily:'Inter, Helvetica Neue, Arial, sans-serif',fontSize,fontWeight:kind==='number_counter'?750:600,letterSpacing:`${Number(layer.style?.tracking ?? 0.02)}em`,lineHeight:1.02,textAlign:'center',opacity:Math.min(reveal, exit),transform:`translateY(${interpolate(reveal,[0,1],[34,0])}px) scale(${scale})`,filter:`blur(${interpolate(reveal,[0,1],[12,0])}px)`,textShadow:'0 6px 32px rgba(0,0,0,.45)'}}>{display}</div>
-  </AbsoluteFill>;
-};
+const Card:React.FC<{children:React.ReactNode;layer:Layer;p:number}>=({children,layer,p})=>{const t=tokens(layer),pal=t.palette??{},geo=t.geometry??{};return <div style={{width:'78%',padding:'42px 46px',borderRadius:Number(layer.style?.radius??geo.radius??22),background:String(layer.style?.panel??pal.panel??'rgba(12,12,14,.76)'),opacity:p,border:`${Number(geo.border_width??1)}px solid rgba(255,255,255,.16)`,boxShadow:'0 22px 70px rgba(0,0,0,.32)'}}>{children}</div>};
 
-const ShapeLayer: React.FC<{layer: Layer; sceneOffset: number}> = ({layer, sceneOffset}) => {
-  const {fps,local,active}=activeProgress(layer,sceneOffset); if (!active) return null;
-  const duration=Math.max(1,(layer.enter?.duration ?? .55)*fps); const p=interpolate(local,[0,duration],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
-  const kind=String(layer.style?.mg_kind ?? 'shape');
-  if (kind==='veil') return <AbsoluteFill style={{zIndex:layer.z??5,background:'rgba(4,4,5,1)',opacity:Number(layer.style?.opacity ?? .5)*p,pointerEvents:'none'}}/>;
-  if (kind==='bar_chart') {
-    const bars=Array.isArray(layer.style?.bars)?(layer.style?.bars as number[]):[.34,.58,.82,1];
-    return <AbsoluteFill style={{zIndex:layer.z??25,justifyContent:'center',alignItems:'center',pointerEvents:'none'}}><div style={{width:'72%',padding:'42px 46px',borderRadius:28,background:'rgba(12,12,14,.74)',backdropFilter:'blur(18px)',border:'1px solid rgba(255,255,255,.15)'}}><div style={{fontSize:26,letterSpacing:'.12em',color:'rgba(255,255,255,.62)',marginBottom:28}}>PROOF / DATA</div><div style={{height:290,display:'flex',alignItems:'flex-end',gap:22}}>{bars.map((v,i)=><div key={i} style={{flex:1,height:`${Math.max(4,v*p*100)}%`,borderRadius:'10px 10px 2px 2px',background:'linear-gradient(180deg,#f2efe6,#858078)',boxShadow:'0 12px 30px rgba(0,0,0,.25)'}}/>)}</div><div style={{marginTop:24,fontSize:42,color:'#fff'}}>{String(layer.style?.label ?? layer.content ?? '')}</div></div></AbsoluteFill>;
-  }
-  if (kind==='comparison') return <AbsoluteFill style={{zIndex:layer.z??24,alignItems:'center',justifyContent:'center',pointerEvents:'none'}}><div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'stretch',width:'82%',gap:18,opacity:p,transform:`scale(${.94+.06*p})`}}><div style={{padding:'44px 30px',background:'rgba(25,25,27,.82)',border:'1px solid rgba(255,255,255,.12)',fontSize:52,textAlign:'center'}}>{String(layer.style?.left ?? 'BEFORE')}</div><div style={{display:'grid',placeItems:'center',fontSize:38}}>→</div><div style={{padding:'44px 30px',background:'rgba(235,231,219,.94)',color:'#171716',fontSize:52,textAlign:'center'}}>{String(layer.style?.right ?? 'AFTER')}</div></div></AbsoluteFill>;
-  if (kind==='process_flow') {
-    const nodes=Array.isArray(layer.style?.nodes)?(layer.style?.nodes as string[]):['问题','判断','结果'];
-    return <AbsoluteFill style={{zIndex:layer.z??26,alignItems:'center',justifyContent:'center',pointerEvents:'none'}}><div style={{display:'flex',alignItems:'center',gap:16,width:'86%',justifyContent:'center'}}>{nodes.map((node,i)=><React.Fragment key={node}><div style={{minWidth:190,padding:'26px 24px',borderRadius:18,border:'1px solid rgba(255,255,255,.2)',background:'rgba(10,10,12,.78)',fontSize:36,textAlign:'center',opacity:interpolate(p,[i/nodes.length,Math.min(1,(i+1)/nodes.length)],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp'})}}>{node}</div>{i<nodes.length-1&&<div style={{fontSize:32,opacity:.65}}>→</div>}</React.Fragment>)}</div></AbsoluteFill>;
-  }
+const ShapeLayer:React.FC<{layer:Layer;sceneOffset:number}>=({layer,sceneOffset})=>{
+  const{fps,local,active:ok}=active(layer,sceneOffset);if(!ok)return null;const d=Math.max(1,(layer.enter?.duration??.55)*fps);const p=interpolate(local,[0,d],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});const kind=String(layer.style?.mg_kind??'shape');const t=tokens(layer),pal=t.palette??{};const accent=String(layer.style?.accent??pal.accent??'#E7E1D3');
+  if(kind==='veil')return <AbsoluteFill style={{zIndex:layer.z??5,background:String(layer.style?.color??pal.background??'#050505'),opacity:Number(layer.style?.opacity??.5)*p,pointerEvents:'none'}}/>;
+  if(kind==='bar_chart'){const bars=Array.isArray(layer.style?.bars)?layer.style?.bars as number[]:[.34,.58,.82,1];return <AbsoluteFill style={{zIndex:layer.z??25,justifyContent:'center',alignItems:'center'}}><Card layer={layer} p={p}><div style={{fontSize:24,letterSpacing:'.12em',color:String(pal.muted??'#999'),marginBottom:24}}>PROOF / DATA</div><div style={{height:280,display:'flex',alignItems:'flex-end',gap:18}}>{bars.map((v,i)=><div key={i} style={{flex:1,height:`${Math.max(4,v*p*100)}%`,borderRadius:'10px 10px 2px 2px',background:`linear-gradient(180deg,${accent},${String(pal.muted??'#777')})`}}/>)}</div><div style={{marginTop:22,fontSize:40,color:String(pal.foreground??'#fff')}}>{String(layer.style?.label??layer.content??'')}</div></Card></AbsoluteFill>}
+  if(kind==='line_chart'){const pts=(Array.isArray(layer.style?.points)?layer.style?.points:[.18,.34,.28,.61,.74,1]) as number[];const path=pts.map((v,i)=>`${i?'L':'M'} ${i*(640/(pts.length-1))} ${220-v*190}`).join(' ');return <AbsoluteFill style={{zIndex:layer.z??25,justifyContent:'center',alignItems:'center'}}><Card layer={layer} p={p}><svg viewBox="0 0 640 240" style={{width:'100%',height:260}}><path d={path} fill="none" stroke={accent} strokeWidth="8" strokeDasharray="900" strokeDashoffset={900*(1-p)} strokeLinecap="round"/></svg><div style={{fontSize:38,color:String(pal.foreground??'#fff')}}>{String(layer.style?.label??layer.content??'')}</div></Card></AbsoluteFill>}
+  if(kind==='comparison'){return <AbsoluteFill style={{zIndex:layer.z??24,alignItems:'center',justifyContent:'center'}}><div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',width:'82%',gap:18,opacity:p,transform:`scale(${.94+.06*p})`}}><div style={{padding:'44px 30px',background:String(pal.panel??'#202024'),fontSize:52,textAlign:'center',color:String(pal.foreground??'#fff')}}>{String(layer.style?.left??'BEFORE')}</div><div style={{display:'grid',placeItems:'center',fontSize:38,color:accent}}>→</div><div style={{padding:'44px 30px',background:accent,color:String(pal.background??'#111'),fontSize:52,textAlign:'center'}}>{String(layer.style?.right??'AFTER')}</div></div></AbsoluteFill>}
+  if(kind==='process_flow'||kind==='timeline'){const nodes=(Array.isArray(layer.style?.nodes)?layer.style?.nodes:['问题','判断','结果']) as string[];return <AbsoluteFill style={{zIndex:layer.z??26,alignItems:'center',justifyContent:'center'}}><div style={{display:'flex',alignItems:'center',gap:16,width:'86%',justifyContent:'center'}}>{nodes.map((n,i)=><React.Fragment key={`${n}-${i}`}><div style={{minWidth:180,padding:'26px 22px',borderRadius:18,border:`1px solid ${accent}`,background:String(pal.panel??'rgba(10,10,12,.8)'),color:String(pal.foreground??'#fff'),fontSize:34,textAlign:'center',opacity:interpolate(p,[i/nodes.length,Math.min(1,(i+1)/nodes.length)],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp'})}}>{n}</div>{i<nodes.length-1&&<div style={{fontSize:32,color:accent}}>→</div>}</React.Fragment>)}</div></AbsoluteFill>}
+  if(kind==='node_graph'){const nodes=(Array.isArray(layer.style?.nodes)?layer.style?.nodes:['输入','判断','输出']) as string[];return <AbsoluteFill style={{zIndex:layer.z??26,alignItems:'center',justifyContent:'center'}}><div style={{position:'relative',width:'82%',height:480,opacity:p}}>{nodes.map((n,i)=><div key={n} style={{position:'absolute',left:`${12+i*34}%`,top:i===1?'16%':'58%',transform:'translate(-50%,-50%)',padding:'26px 30px',borderRadius:999,border:`2px solid ${accent}`,background:String(pal.panel??'#151515'),color:String(pal.foreground??'#fff'),fontSize:32}}>{n}</div>)}</div></AbsoluteFill>}
+  if(kind==='document_highlight'){return <AbsoluteFill style={{zIndex:layer.z??27,alignItems:'center',justifyContent:'center'}}><Card layer={layer} p={p}><div style={{fontSize:22,color:String(pal.muted??'#999'),marginBottom:24}}>DOCUMENT / EVIDENCE</div><div style={{fontSize:42,lineHeight:1.35,color:String(pal.foreground??'#fff')}}>{String(layer.style?.quote??layer.content??'')}</div><div style={{height:5,width:`${p*100}%`,background:accent,marginTop:28}}/></Card></AbsoluteFill>}
+  if(kind==='browser_frame'){return <AbsoluteFill style={{zIndex:layer.z??27,alignItems:'center',justifyContent:'center'}}><Card layer={layer} p={p}><div style={{display:'flex',gap:8,marginBottom:22}}>{[0,1,2].map(i=><span key={i} style={{width:12,height:12,borderRadius:99,background:i===0?accent:String(pal.muted??'#777')}}/>)}</div><div style={{fontSize:26,color:String(pal.muted??'#999')}}>{String(layer.style?.title??'BROWSER')}</div><div style={{fontSize:42,lineHeight:1.25,color:String(pal.foreground??'#fff'),marginTop:22}}>{String(layer.style?.body??layer.content??'')}</div></Card></AbsoluteFill>}
   return null;
 };
 
-const LightLayer: React.FC<{layer: Layer; sceneOffset: number}> = ({layer, sceneOffset}) => {
-  const {frame,fps,active}=activeProgress(layer,sceneOffset); if (!active) return null;
-  const p = interpolate(frame,[layer.start*fps,layer.end*fps],[-35,135],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
-  return <div style={{position:'absolute',top:'-20%',bottom:'-20%',left:`${p}%`,width:5,zIndex:layer.z ?? 0,transform:'rotate(8deg)',background:'linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.95) 50%, rgba(255,255,255,0))',boxShadow:'0 0 32px 10px rgba(255,255,255,0.22)'}}/>;
-};
-
-const VideoLayer: React.FC<{layer: Layer; sceneOffset: number}> = ({layer, sceneOffset}) => {
-  const {fps} = useVideoConfig(); if (!layer.asset_ref) return null;
-  const from = Math.round(sceneOffset + layer.start * fps); const durationInFrames = Math.max(1, Math.round((layer.end - layer.start) * fps));
-  return <Sequence from={from} durationInFrames={durationInFrames} layout="none"><AbsoluteFill style={{zIndex:layer.z ?? -100,backgroundColor:'#000'}}><Video src={staticFile(layer.asset_ref)} style={{width:'100%',height:'100%',objectFit:'cover'}} /></AbsoluteFill></Sequence>;
-};
-
-const SubtitleLayer: React.FC<{scene: Scene; sceneOffset: number}> = ({scene, sceneOffset}) => {
-  const frame = useCurrentFrame() - sceneOffset; const {fps} = useVideoConfig(); const cue=(scene.subtitle_cues ?? []).find((item)=>frame>=item.start*fps&&frame<item.end*fps); if(!cue)return null;
-  return <AbsoluteFill style={{justifyContent:'flex-end',alignItems:'center',padding:'0 70px 72px',zIndex:1000,pointerEvents:'none'}}><div style={{maxWidth:'88%',padding:'12px 20px',borderRadius:14,background:'rgba(0,0,0,0.56)',color:'#fff',fontFamily:'Inter, Helvetica Neue, Arial, sans-serif',fontSize:38,lineHeight:1.25,textAlign:'center',textShadow:'0 2px 8px rgba(0,0,0,0.7)'}}>{cue.text}</div></AbsoluteFill>;
-};
-
-const AudioTracks: React.FC<{scene: Scene; sceneOffset: number}> = ({scene, sceneOffset}) => {const {fps}=useVideoConfig();return <>{(scene.audio_tracks??[]).map((track)=>{const from=Math.round(sceneOffset+track.start*fps);const durationInFrames=track.end==null?undefined:Math.max(1,Math.round((track.end-track.start)*fps));return <Sequence key={track.id} from={from} durationInFrames={durationInFrames} layout="none"><Audio src={staticFile(track.asset_ref)} volume={track.volume??1}/></Sequence>})}</>};
-
-const renderLayer=(layer:Layer,sceneOffset:number)=>{if(layer.type==='text')return <TextLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;if(layer.type==='shape')return <ShapeLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;if(layer.type==='light')return <LightLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;if(layer.type==='video')return <VideoLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>;if(layer.type==='background')return <AbsoluteFill key={layer.id} style={{backgroundColor:layer.content??'#000',zIndex:layer.z??-100}}/>;return null;};
-
-export const GenericMotion: React.FC<Props> = ({ir}) => {
-  const frame=useCurrentFrame(); const {fps}=useVideoConfig(); let cursor=0;let sceneOffset=0;let scene=ir.scenes[ir.scenes.length-1];
-  for(const candidate of ir.scenes){const durationFrames=candidate.duration*fps;if(frame<cursor+durationFrames){scene=candidate;sceneOffset=cursor;break}cursor+=durationFrames}
-  const sceneFrame=Math.max(0,frame-sceneOffset);const cameraScale=interpolate(sceneFrame,[0,Math.max(1,scene.duration*fps)],[1,scene.camera?.movement==='subtle-push-in'?1.035:1],{extrapolateRight:'clamp'});
-  return <AbsoluteFill style={{backgroundColor:ir.canvas.background,overflow:'hidden',transform:`scale(${cameraScale})`}}>{[...scene.layers].sort((a,b)=>(a.z??0)-(b.z??0)).map((layer)=>renderLayer(layer,sceneOffset))}<SubtitleLayer scene={scene} sceneOffset={sceneOffset}/><AudioTracks scene={scene} sceneOffset={sceneOffset}/></AbsoluteFill>;
-};
+const LightLayer:React.FC<{layer:Layer;sceneOffset:number}>=({layer,sceneOffset})=>{const{frame,fps,active:ok}=active(layer,sceneOffset);if(!ok)return null;const p=interpolate(frame,[layer.start*fps,layer.end*fps],[-35,135],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});const strength=Number(layer.style?.strength??.7);return <div style={{position:'absolute',top:'-20%',bottom:'-20%',left:`${p}%`,width:5,zIndex:layer.z??0,transform:'rotate(8deg)',background:'linear-gradient(180deg,transparent,rgba(255,255,255,.95),transparent)',boxShadow:`0 0 ${32*strength}px ${10*strength}px rgba(255,255,255,.28)`}}/>};
+const VideoLayer:React.FC<{layer:Layer;sceneOffset:number}>=({layer,sceneOffset})=>{const{fps}=useVideoConfig();if(!layer.asset_ref)return null;const from=Math.round(sceneOffset+layer.start*fps),durationInFrames=Math.max(1,Math.round((layer.end-layer.start)*fps));return <Sequence from={from} durationInFrames={durationInFrames} layout="none"><AbsoluteFill style={{zIndex:layer.z??-100,backgroundColor:'#000'}}><Video src={staticFile(layer.asset_ref)} style={{width:'100%',height:'100%',objectFit:'cover'}}/></AbsoluteFill></Sequence>};
+const SubtitleLayer:React.FC<{scene:Scene;sceneOffset:number}>=({scene,sceneOffset})=>{const frame=useCurrentFrame()-sceneOffset;const{fps}=useVideoConfig();const cue=(scene.subtitle_cues??[]).find(c=>frame>=c.start*fps&&frame<c.end*fps);if(!cue)return null;return <AbsoluteFill style={{justifyContent:'flex-end',alignItems:'center',padding:'0 70px 72px',zIndex:1000}}><div style={{maxWidth:'88%',padding:'12px 20px',borderRadius:14,background:'rgba(0,0,0,.56)',color:'#fff',fontSize:38,lineHeight:1.25,textAlign:'center'}}>{cue.text}</div></AbsoluteFill>};
+const AudioTracks:React.FC<{scene:Scene;sceneOffset:number}>=({scene,sceneOffset})=>{const{fps}=useVideoConfig();return <>{(scene.audio_tracks??[]).map(t=><Sequence key={t.id} from={Math.round(sceneOffset+t.start*fps)} durationInFrames={t.end==null?undefined:Math.max(1,Math.round((t.end-t.start)*fps))} layout="none"><Audio src={staticFile(t.asset_ref)} volume={t.volume??1}/></Sequence>)}</>};
+const renderLayer=(layer:Layer,sceneOffset:number)=>layer.type==='text'?<TextLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>:layer.type==='shape'?<ShapeLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>:layer.type==='light'?<LightLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>:layer.type==='video'?<VideoLayer key={layer.id} layer={layer} sceneOffset={sceneOffset}/>:layer.type==='background'?<AbsoluteFill key={layer.id} style={{backgroundColor:layer.content??'#000',zIndex:layer.z??-100}}/>:null;
+export const GenericMotion:React.FC<Props>=({ir})=>{const frame=useCurrentFrame();const{fps}=useVideoConfig();let cursor=0,sceneOffset=0,scene=ir.scenes[ir.scenes.length-1];for(const s of ir.scenes){const frames=s.duration*fps;if(frame<cursor+frames){scene=s;sceneOffset=cursor;break}cursor+=frames}const sceneFrame=Math.max(0,frame-sceneOffset);const target=scene.camera?.movement==='subtle-push-in'?Number(scene.camera?.scale_to??1.035):1;const cameraScale=interpolate(sceneFrame,[0,Math.max(1,scene.duration*fps)],[1,target],{extrapolateRight:'clamp'});return <AbsoluteFill style={{backgroundColor:ir.canvas.background,overflow:'hidden',transform:`scale(${cameraScale})`}}>{[...scene.layers].sort((a,b)=>(a.z??0)-(b.z??0)).map(l=>renderLayer(l,sceneOffset))}<SubtitleLayer scene={scene} sceneOffset={sceneOffset}/><AudioTracks scene={scene} sceneOffset={sceneOffset}/></AbsoluteFill>};
